@@ -10,6 +10,8 @@ import {
     HiOutlineArrowPath,
     HiOutlineLightBulb,
     HiOutlineExclamationCircle,
+    HiOutlinePuzzlePiece,
+    HiOutlineSparkles,
 } from 'react-icons/hi2';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -50,7 +52,7 @@ interface AnalysisData {
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const LANGUAGES = ['C', 'C++', 'Java', 'Python'];
+const LANGUAGES = ['Python', 'C++', 'Java', 'C'];
 const TOPICS = ['Mixed', 'Arrays', 'Linked List', 'Stacks', 'Trees', 'Dynamic Programming', 'Graphs', 'Sorting'];
 const DIFFICULTIES = ['Mixed', 'Easy', 'Medium', 'Hard'];
 const QUESTION_COUNTS = [5, 10, 15, 20];
@@ -59,26 +61,29 @@ const TOPIC_ICONS: Record<string, string> = {
     Mixed: '🔀', Arrays: '📊', 'Linked List': '🔗', Stacks: '📚',
     Trees: '🌲', 'Dynamic Programming': '🧮', Graphs: '🕸️', Sorting: '🔄',
 };
+
 const COMPANY_COLORS: Record<string, string> = {
-    Google: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-    Amazon: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
-    Microsoft: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
-    Meta: 'bg-blue-600/20 text-blue-400 border-blue-600/30',
-    Apple: 'bg-gray-400/20 text-gray-300 border-gray-400/30',
-    Uber: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-    Netflix: 'bg-red-500/20 text-red-300 border-red-500/30',
+    Google: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30',
+    Amazon: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+    Microsoft: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
+    Meta: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+    Apple: 'bg-slate-400/15 text-slate-300 border-slate-400/30',
+    Uber: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+    Netflix: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
 };
+
 const DIFF_COLORS: Record<string, string> = {
-    Easy: 'bg-emerald-500/20 text-emerald-400',
-    Medium: 'bg-amber-500/20 text-amber-400',
-    Hard: 'bg-red-500/20 text-red-400',
-    Mixed: 'bg-violet-500/20 text-violet-400',
+    Easy: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25',
+    Medium: 'bg-amber-500/15 text-amber-400 border border-amber-500/25',
+    Hard: 'bg-rose-500/15 text-rose-400 border border-rose-500/25',
+    Mixed: 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/25',
 };
+
 const LANG_COLORS: Record<string, string> = {
-    C: 'bg-slate-600/30 text-slate-300 border-slate-500/30',
-    'C++': 'bg-blue-700/30 text-blue-300 border-blue-600/30',
-    Java: 'bg-orange-700/30 text-orange-300 border-orange-600/30',
-    Python: 'bg-yellow-600/30 text-yellow-200 border-yellow-500/30',
+    Python: 'bg-indigo-500/20 text-indigo-200 border-indigo-500/40',
+    'C++': 'bg-cyan-500/20 text-cyan-200 border-cyan-500/40',
+    Java: 'bg-amber-500/20 text-amber-200 border-amber-500/40',
+    C: 'bg-slate-500/20 text-slate-200 border-slate-500/40',
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -197,9 +202,9 @@ export default function DSAPracticePage() {
                     topicBreakdown: data.topicBreakdown,
                 };
                 try {
-                    const existing = JSON.parse(localStorage.getItem('evolveai_dsa_sessions') || '[]');
+                    const existing = JSON.parse(localStorage.getItem('mindmirror_dsa_sessions') || localStorage.getItem('evolveai_dsa_sessions') || '[]');
                     existing.unshift(session);
-                    localStorage.setItem('evolveai_dsa_sessions', JSON.stringify(existing.slice(0, 50)));
+                    localStorage.setItem('mindmirror_dsa_sessions', JSON.stringify(existing.slice(0, 50)));
                 } catch { /* ignore localStorage errors */ }
             } catch (err) {
                 console.error('Analysis error:', err);
@@ -223,45 +228,60 @@ export default function DSAPracticePage() {
     // ── Option styling helpers ────────────────────────────────────────────────
 
     const optionClass = (idx: number) => {
-        if (!answered) return 'border-white/10 text-gray-300 hover:border-violet-500/50 hover:bg-violet-500/5 cursor-pointer';
+        if (!answered) return 'border-white/[0.08] text-slate-200 hover:border-indigo-500/50 hover:bg-indigo-500/[0.06] cursor-pointer';
         if (isSkipped) {
             return idx === currentQ.answer
                 ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-300'
-                : 'border-white/5 text-gray-600 opacity-40';
+                : 'border-white/[0.04] text-slate-500 opacity-40';
         }
-        if (idx === currentQ.answer) return 'border-emerald-500/50 bg-emerald-500/10 text-emerald-300';
-        if (idx === selectedOption) return 'border-red-500/50 bg-red-500/10 text-red-300';
-        return 'border-white/5 text-gray-600 opacity-40';
+        if (idx === currentQ.answer) return 'border-emerald-500/50 bg-emerald-500/10 text-emerald-300 font-semibold';
+        if (idx === selectedOption) return 'border-rose-500/50 bg-rose-500/10 text-rose-300';
+        return 'border-white/[0.04] text-slate-500 opacity-40';
     };
 
     const optionIcon = (idx: number) => {
         if (!answered) return null;
-        if (idx === currentQ.answer) return <HiOutlineCheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />;
-        if (!isSkipped && idx === selectedOption) return <HiOutlineXCircle className="w-5 h-5 text-red-400 flex-shrink-0" />;
+        if (idx === currentQ.answer) return <HiOutlineCheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />;
+        if (!isSkipped && idx === selectedOption) return <HiOutlineXCircle className="w-5 h-5 text-rose-400 shrink-0" />;
         return null;
     };
-
-    const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
     // ══════════════════════════════════════════════════════════════════════════
     // SETUP SCREEN
     // ══════════════════════════════════════════════════════════════════════════
     if (step === 'setup') return (
-        <div className="p-6 lg:p-8 max-w-4xl mx-auto space-y-8">
-            <div>
-                <h1 className="text-3xl font-bold text-white mb-2">DSA Practice Quiz</h1>
-                <p className="text-gray-400">Company-tagged MCQs across 7 DSA topics — questions & answer order shuffle every session.</p>
+        <div className="p-6 lg:p-8 max-w-6xl mx-auto space-y-8">
+            {/* Header Banner */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0e1432] via-[#0d1228] to-[#070914] border border-white/[0.08] p-7 lg:p-9 shadow-2xl backdrop-blur-2xl">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+                <div className="relative z-10">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-semibold tracking-wide mb-3">
+                        <HiOutlinePuzzlePiece className="w-3.5 h-3.5" />
+                        AI Weakness Mapper &amp; Practice Arena
+                    </div>
+                    <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
+                        DSA Diagnostic &amp; Practice Quiz
+                    </h1>
+                    <p className="text-slate-300 text-xs lg:text-sm mt-1 max-w-2xl leading-relaxed">
+                        Curated company-tagged MCQs across 7 core DSA disciplines. Questions and options dynamically shuffle with automatic AI weakness identification.
+                    </p>
+                </div>
             </div>
 
             {/* Language */}
-            <div>
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Programming Language</h2>
+            <div className="space-y-3">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300">1. Select Target Language</h2>
                 <div className="flex gap-3 flex-wrap">
                     {LANGUAGES.map(l => (
-                        <button key={l} onClick={() => setLanguage(l)}
-                            className={`px-5 py-2.5 rounded-xl text-sm font-semibold border transition-all ${language === l
-                                ? `${LANG_COLORS[l]}`
-                                : 'glass-card text-gray-400 border-white/10 hover:border-white/25 hover:text-gray-200'}`}>
+                        <button
+                            key={l}
+                            onClick={() => setLanguage(l)}
+                            className={`px-5 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
+                                language === l
+                                    ? `${LANG_COLORS[l]} shadow-md`
+                                    : 'glass-card text-slate-400 hover:text-slate-200'
+                            }`}
+                        >
                             {l}
                         </button>
                     ))}
@@ -269,15 +289,21 @@ export default function DSAPracticePage() {
             </div>
 
             {/* Topic */}
-            <div>
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">DSA Topic</h2>
+            <div className="space-y-3">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300">2. Select DSA Topic</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {TOPICS.map(t => (
-                        <button key={t} onClick={() => setTopic(t)}
-                            className={`p-3 rounded-xl text-sm font-medium border transition-all text-left ${topic === t
-                                ? 'bg-violet-500/15 border-violet-500/40 text-white'
-                                : 'glass-card text-gray-400 border-white/10 hover:border-white/25 hover:text-gray-200'}`}>
-                            {TOPIC_ICONS[t]} {t === 'Dynamic Programming' ? 'Dynamic Prog.' : t}
+                        <button
+                            key={t}
+                            onClick={() => setTopic(t)}
+                            className={`p-4 rounded-2xl text-xs font-semibold border transition-all text-left flex items-center gap-2 ${
+                                topic === t
+                                    ? 'bg-indigo-600/25 border-indigo-500 text-white shadow-md'
+                                    : 'glass-card text-slate-400 hover:text-slate-200'
+                            }`}
+                        >
+                            <span className="text-base">{TOPIC_ICONS[t]}</span>
+                            <span className="truncate">{t}</span>
                         </button>
                     ))}
                 </div>
@@ -285,28 +311,39 @@ export default function DSAPracticePage() {
 
             {/* Difficulty + Count */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                    <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Difficulty</h2>
+                <div className="space-y-3">
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300">3. Difficulty Level</h2>
                     <div className="flex gap-2 flex-wrap">
                         {DIFFICULTIES.map(d => (
-                            <button key={d} onClick={() => setDifficulty(d)}
-                                className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${difficulty === d
-                                    ? `${DIFF_COLORS[d]} border-current`
-                                    : 'glass-card text-gray-400 border-white/10 hover:border-white/25'}`}>
+                            <button
+                                key={d}
+                                onClick={() => setDifficulty(d)}
+                                className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
+                                    difficulty === d
+                                        ? `${DIFF_COLORS[d]} shadow-md font-bold`
+                                        : 'glass-card text-slate-400 hover:text-slate-200'
+                                }`}
+                            >
                                 {d}
                             </button>
                         ))}
                     </div>
                 </div>
-                <div>
-                    <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Questions</h2>
+
+                <div className="space-y-3">
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300">4. Question Count</h2>
                     <div className="flex gap-2">
                         {QUESTION_COUNTS.map(c => (
-                            <button key={c} onClick={() => setCount(c)}
-                                className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${count === c
-                                    ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300'
-                                    : 'glass-card text-gray-400 border-white/10 hover:border-white/25'}`}>
-                                {c}
+                            <button
+                                key={c}
+                                onClick={() => setCount(c)}
+                                className={`px-4 py-2.5 rounded-xl text-xs font-mono-metric font-semibold border transition-all ${
+                                    count === c
+                                        ? 'bg-cyan-500/20 border-cyan-500 text-cyan-200 shadow-md font-bold'
+                                        : 'glass-card text-slate-400 hover:text-slate-200'
+                                }`}
+                            >
+                                {c} Qs
                             </button>
                         ))}
                     </div>
@@ -314,17 +351,31 @@ export default function DSAPracticePage() {
             </div>
 
             {error && (
-                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center gap-2">
-                    <HiOutlineExclamationCircle className="w-4 h-4 flex-shrink-0" />{error}
+                <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-medium flex items-center gap-2">
+                    <HiOutlineExclamationCircle className="w-4 h-4 shrink-0" />
+                    <span>{error}</span>
                 </div>
             )}
 
-            <button onClick={startQuiz} disabled={loading}
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-violet-600 to-cyan-600 text-white font-semibold hover:from-violet-500 hover:to-cyan-500 transition-all shadow-lg shadow-violet-500/25 disabled:opacity-50 flex items-center justify-center gap-2">
-                {loading
-                    ? <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Loading Questions…</>
-                    : <><HiOutlinePlay className="w-5 h-5" />Start Quiz</>}
-            </button>
+            <div className="flex justify-center pt-2">
+                <button
+                    onClick={startQuiz}
+                    disabled={loading}
+                    className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-semibold text-xs shadow-lg shadow-indigo-500/25 disabled:opacity-40 transition-all flex items-center gap-2"
+                >
+                    {loading ? (
+                        <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Synthesizing DSA Challenge…
+                        </>
+                    ) : (
+                        <>
+                            <HiOutlinePlay className="w-4 h-4" />
+                            Start Practice Session
+                        </>
+                    )}
+                </button>
+            </div>
         </div>
     );
 
@@ -332,56 +383,77 @@ export default function DSAPracticePage() {
     // QUIZ SCREEN
     // ══════════════════════════════════════════════════════════════════════════
     if (step === 'quiz' && currentQ) return (
-        <div className="p-6 lg:p-8 max-w-3xl mx-auto space-y-5">
+        <div className="p-6 lg:p-8 max-w-4xl mx-auto space-y-5 animate-fade-in">
             {/* Top bar */}
             <div className="flex items-center justify-between gap-4">
                 <div>
                     <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs px-2.5 py-0.5 rounded-full border ${LANG_COLORS[language]}`}>{language}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${DIFF_COLORS[currentQ.difficulty]}`}>{currentQ.difficulty}</span>
+                        <span className={`text-[10px] px-2.5 py-0.5 rounded-md border font-semibold ${LANG_COLORS[language]}`}>{language}</span>
+                        <span className={`text-[10px] px-2.5 py-0.5 rounded-md font-semibold ${DIFF_COLORS[currentQ.difficulty]}`}>{currentQ.difficulty}</span>
                     </div>
-                    <p className="text-sm text-gray-400">Question <span className="text-white font-semibold">{currentIndex + 1}</span> / {questions.length}</p>
+                    <p className="text-xs text-slate-400">
+                        Question <span className="text-white font-bold font-mono-metric">{currentIndex + 1}</span> of {questions.length}
+                    </p>
                 </div>
                 {/* Dot progress */}
-                <div className="flex gap-1.5 flex-wrap justify-end max-w-[160px]">
+                <div className="flex gap-1.5 flex-wrap justify-end max-w-[200px]">
                     {questions.map((_, i) => (
-                        <div key={i} className={`w-2.5 h-2.5 rounded-full transition-all ${i < currentIndex
-                            ? (results[i]?.skipped ? 'bg-gray-500' : results[i]?.correct ? 'bg-emerald-500' : 'bg-red-500')
-                            : i === currentIndex ? 'bg-violet-500 animate-pulse' : 'bg-white/10'}`} />
+                        <div
+                            key={i}
+                            className={`w-2.5 h-2.5 rounded-full transition-all ${
+                                i < currentIndex
+                                    ? results[i]?.skipped
+                                        ? 'bg-slate-500'
+                                        : results[i]?.correct
+                                        ? 'bg-emerald-400'
+                                        : 'bg-rose-500'
+                                    : i === currentIndex
+                                    ? 'bg-indigo-400 animate-pulse scale-125'
+                                    : 'bg-white/[0.12]'
+                            }`}
+                        />
                     ))}
                 </div>
             </div>
 
             {/* Progress bar */}
-            <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 transition-all duration-500"
-                    style={{ width: `${progressPct}%` }} />
+            <div className="h-1 rounded-full bg-white/[0.08] overflow-hidden">
+                <div
+                    className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400 transition-all duration-500"
+                    style={{ width: `${progressPct}%` }}
+                />
             </div>
 
             {/* Question card */}
-            <div className="glass-card rounded-2xl p-6 space-y-5">
+            <div className="glass-card rounded-3xl p-7 lg:p-8 space-y-6">
                 {/* Company tag + question */}
-                <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-white text-lg font-medium leading-relaxed flex-1">{currentQ.question}</h3>
-                    <span className={`text-xs px-2.5 py-1 rounded-full border whitespace-nowrap flex-shrink-0 ${COMPANY_COLORS[currentQ.company] || 'bg-gray-500/20 text-gray-300 border-gray-500/30'}`}>
+                <div className="flex items-start justify-between gap-4">
+                    <h3 className="text-white text-base lg:text-lg font-semibold leading-relaxed flex-1">
+                        {currentQ.question}
+                    </h3>
+                    <span className={`text-[11px] px-3 py-1 rounded-full border whitespace-nowrap shrink-0 font-semibold ${COMPANY_COLORS[currentQ.company] || 'bg-slate-500/15 text-slate-300 border-slate-500/30'}`}>
                         🏢 {currentQ.company}
                     </span>
                 </div>
 
                 {/* Topic badge */}
-                <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-400">
+                <span className="inline-block text-xs px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-slate-300 font-medium">
                     {TOPIC_ICONS[currentQ.topic]} {currentQ.topic}
                 </span>
 
                 {/* Options */}
                 <div className="space-y-2.5">
                     {currentQ.options.map((opt, i) => (
-                        <button key={i} onClick={() => selectOption(i)} disabled={answered}
-                            className={`w-full p-4 rounded-xl border text-left transition-all duration-200 flex items-center gap-3 ${optionClass(i)}`}>
-                            <span className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                        <button
+                            key={i}
+                            onClick={() => selectOption(i)}
+                            disabled={answered}
+                            className={`w-full p-4 rounded-2xl border text-left transition-all duration-200 flex items-center gap-3.5 ${optionClass(i)}`}
+                        >
+                            <span className="w-7 h-7 rounded-xl bg-white/[0.06] flex items-center justify-center text-xs font-mono-metric font-bold shrink-0">
                                 {String.fromCharCode(65 + i)}
                             </span>
-                            <span className="flex-1 text-sm leading-snug">{opt}</span>
+                            <span className="flex-1 text-xs lg:text-sm leading-relaxed">{opt}</span>
                             {optionIcon(i)}
                         </button>
                     ))}
@@ -389,38 +461,59 @@ export default function DSAPracticePage() {
 
                 {/* Explanation banner */}
                 {answered && (
-                    <div className={`p-4 rounded-xl border ${isSkipped
-                        ? 'bg-gray-500/5 border-gray-500/20'
-                        : selectedOption === currentQ.answer
-                            ? 'bg-emerald-500/5 border-emerald-500/20'
-                            : 'bg-red-500/5 border-red-500/20'}`}>
-                        <div className="flex items-center gap-2 mb-2">
-                            {isSkipped
-                                ? <HiOutlineLightBulb className="w-4 h-4 text-gray-400" />
-                                : selectedOption === currentQ.answer
-                                    ? <HiOutlineCheckCircle className="w-4 h-4 text-emerald-400" />
-                                    : <HiOutlineXCircle className="w-4 h-4 text-red-400" />}
-                            <span className={`text-xs font-semibold ${isSkipped ? 'text-gray-400' : selectedOption === currentQ.answer ? 'text-emerald-400' : 'text-red-400'}`}>
-                                {isSkipped ? 'Skipped — correct answer shown' : selectedOption === currentQ.answer ? 'Correct! 🎉' : 'Incorrect'}
+                    <div className={`p-4 rounded-2xl border ${
+                        isSkipped
+                            ? 'bg-slate-500/[0.06] border-slate-500/20'
+                            : selectedOption === currentQ.answer
+                            ? 'bg-emerald-500/[0.06] border-emerald-500/20'
+                            : 'bg-rose-500/[0.06] border-rose-500/20'
+                    }`}>
+                        <div className="flex items-center gap-2 mb-1.5">
+                            {isSkipped ? (
+                                <HiOutlineLightBulb className="w-4 h-4 text-slate-400" />
+                            ) : selectedOption === currentQ.answer ? (
+                                <HiOutlineCheckCircle className="w-4 h-4 text-emerald-400" />
+                            ) : (
+                                <HiOutlineXCircle className="w-4 h-4 text-rose-400" />
+                            )}
+                            <span className={`text-xs font-bold ${
+                                isSkipped ? 'text-slate-300' : selectedOption === currentQ.answer ? 'text-emerald-300' : 'text-rose-300'
+                            }`}>
+                                {isSkipped ? 'Question Skipped — Solution Below' : selectedOption === currentQ.answer ? 'Correct Solution! 🎉' : 'Incorrect Solution'}
                             </span>
                         </div>
-                        <p className="text-sm text-gray-300">{currentQ.explanation}</p>
+                        <p className="text-xs text-slate-200 leading-relaxed">{currentQ.explanation}</p>
                     </div>
                 )}
 
                 {/* Controls */}
-                <div className="flex items-center justify-between pt-1">
-                    {!answered
-                        ? <button onClick={skip} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm text-gray-400 border border-white/10 hover:text-gray-200 hover:border-white/20 transition-all">
-                            <HiOutlineForward className="w-4 h-4" />Skip
+                <div className="flex items-center justify-between pt-2">
+                    {!answered ? (
+                        <button
+                            onClick={skip}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs text-slate-400 border border-white/[0.08] hover:text-slate-200 hover:bg-white/[0.04] transition-all"
+                        >
+                            <HiOutlineForward className="w-3.5 h-3.5" />
+                            Skip Question
                         </button>
-                        : <div />}
+                    ) : <div />}
+
                     {answered && (
-                        <button onClick={next}
-                            className="ml-auto flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-cyan-600 text-white text-sm font-semibold hover:from-violet-500 hover:to-cyan-500 transition-all shadow-lg shadow-violet-500/25">
-                            {currentIndex < questions.length - 1
-                                ? <>Next <HiOutlineArrowRight className="w-4 h-4" /></>
-                                : <>Finish <HiOutlineCheckCircle className="w-4 h-4" /></>}
+                        <button
+                            onClick={next}
+                            className="ml-auto flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white text-xs font-semibold hover:from-indigo-500 hover:to-cyan-500 transition-all shadow-lg shadow-indigo-500/25"
+                        >
+                            {currentIndex < questions.length - 1 ? (
+                                <>
+                                    Next Question
+                                    <HiOutlineArrowRight className="w-3.5 h-3.5" />
+                                </>
+                            ) : (
+                                <>
+                                    Finish &amp; Analyze Results
+                                    <HiOutlineCheckCircle className="w-3.5 h-3.5" />
+                                </>
+                            )}
                         </button>
                     )}
                 </div>
@@ -436,63 +529,71 @@ export default function DSAPracticePage() {
         const correct = analysis?.correct ?? results.filter(r => r.correct).length;
         const wrong = analysis?.wrong ?? results.filter(r => !r.correct && !r.skipped).length;
         const skippedCount = analysis?.skipped ?? results.filter(r => r.skipped).length;
-        const scoreColor = score >= 80 ? 'text-emerald-400' : score >= 60 ? 'text-amber-400' : 'text-red-400';
+        const scoreColor = score >= 80 ? 'text-emerald-400' : score >= 60 ? 'text-amber-400' : 'text-rose-400';
 
         return (
-            <div className="p-6 lg:p-8 max-w-4xl mx-auto space-y-8">
+            <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-8 animate-fade-in">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Quiz Complete! 🎉</h1>
-                    <p className="text-gray-400">{TOPIC_ICONS[topic]} {topic} · {difficulty} difficulty · {language} · {results.length} questions</p>
+                    <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
+                        DSA Diagnostic Results 🎉
+                    </h1>
+                    <p className="text-slate-400 text-xs mt-0.5">
+                        {TOPIC_ICONS[topic]} {topic} • {difficulty} Level • {language} • {results.length} Questions Evaluated
+                    </p>
                 </div>
 
                 {/* Score hero */}
-                <div className="glass-card rounded-2xl p-8 text-center">
-                    {analyzing
-                        ? <div className="flex items-center justify-center gap-3 py-4">
-                            <div className="w-6 h-6 border-2 border-white/20 border-t-violet-400 rounded-full animate-spin" />
-                            <span className="text-gray-400">Generating your analysis…</span>
+                <div className="glass-card rounded-3xl p-8 text-center">
+                    {analyzing ? (
+                        <div className="flex items-center justify-center gap-3 py-6">
+                            <div className="w-6 h-6 border-2 border-white/20 border-t-indigo-400 rounded-full animate-spin" />
+                            <span className="text-slate-400 text-xs">Mapping topic proficiency &amp; study tips…</span>
                         </div>
-                        : <>
-                            <div className={`text-7xl font-bold mb-3 ${scoreColor}`}>{score}%</div>
-                            <p className="text-gray-400 text-lg">
-                                {score >= 80 ? '🔥 Outstanding! You\'re well-prepared.'
-                                    : score >= 60 ? '👍 Good progress — a bit more practice will sharpen the edges.'
-                                        : '📚 Keep going — review the explanations and revisit weak topics.'}
+                    ) : (
+                        <>
+                            <div className={`text-6xl font-black font-mono-metric mb-2 ${scoreColor}`}>{score}%</div>
+                            <p className="text-slate-300 text-sm max-w-md mx-auto leading-relaxed">
+                                {score >= 80 ? '🔥 Outstanding mastery! Strong algorithmic intuition.'
+                                    : score >= 60 ? '👍 Solid foundation — targeted practice on edge cases will push you to 90%+.'
+                                    : '📚 Keep pushing — review the topic breakdown below and reinforce core mechanics.'}
                             </p>
-                        </>}
+                        </>
+                    )}
                 </div>
 
                 {/* Stat cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {[
                         { label: 'Correct', value: correct, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-                        { label: 'Wrong', value: wrong, color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
-                        { label: 'Skipped', value: skippedCount, color: 'text-gray-300', bg: 'bg-gray-500/10 border-gray-500/20' },
-                        { label: 'Total', value: results.length, color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20' },
+                        { label: 'Wrong', value: wrong, color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
+                        { label: 'Skipped', value: skippedCount, color: 'text-slate-300', bg: 'bg-slate-500/10 border-slate-500/20' },
+                        { label: 'Total', value: results.length, color: 'text-indigo-300', bg: 'bg-indigo-500/10 border-indigo-500/20' },
                     ].map((s, i) => (
-                        <div key={i} className={`rounded-xl p-5 border ${s.bg} text-center`}>
-                            <div className={`text-3xl font-bold mb-1 ${s.color}`}>{s.value}</div>
-                            <div className="text-xs text-gray-400">{s.label}</div>
+                        <div key={i} className={`rounded-2xl p-5 border ${s.bg} text-center`}>
+                            <div className={`text-2xl font-bold font-mono-metric mb-0.5 ${s.color}`}>{s.value}</div>
+                            <div className="text-[11px] text-slate-400">{s.label}</div>
                         </div>
                     ))}
                 </div>
 
                 {/* Topic breakdown */}
                 {analysis?.topicBreakdown && analysis.topicBreakdown.length > 0 && (
-                    <div className="glass-card rounded-2xl p-6">
-                        <h3 className="text-lg font-semibold text-white mb-5">Topic Breakdown</h3>
-                        <div className="space-y-4">
+                    <div className="glass-card rounded-3xl p-6 lg:p-7 space-y-4">
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300">Topic Proficiency Mapping</h3>
+                        <div className="space-y-3.5">
                             {analysis.topicBreakdown.map((tb, i) => (
-                                <div key={i}>
-                                    <div className="flex justify-between text-sm mb-1.5">
-                                        <span className="text-gray-300">{TOPIC_ICONS[tb.topic]} {tb.topic}</span>
-                                        <span className={`font-semibold ${tb.score >= 80 ? 'text-emerald-400' : tb.score >= 60 ? 'text-amber-400' : 'text-red-400'}`}>
+                                <div key={i} className="space-y-1">
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-slate-300">{TOPIC_ICONS[tb.topic]} {tb.topic}</span>
+                                        <span className={`font-mono-metric font-semibold ${tb.score >= 80 ? 'text-emerald-400' : tb.score >= 60 ? 'text-amber-400' : 'text-rose-400'}`}>
                                             {tb.correct}/{tb.total} ({tb.score}%)
                                         </span>
                                     </div>
-                                    <div className="h-2 rounded-full bg-white/5 overflow-hidden">
-                                        <div className={`h-full rounded-full transition-all duration-700 ${tb.score >= 80 ? 'bg-emerald-500' : tb.score >= 60 ? 'bg-amber-500' : 'bg-red-500'}`}
-                                            style={{ width: `${tb.score}%` }} />
+                                    <div className="h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
+                                        <div
+                                            className={`h-full rounded-full transition-all duration-700 ${tb.score >= 80 ? 'bg-emerald-400' : tb.score >= 60 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                                            style={{ width: `${tb.score}%` }}
+                                        />
                                     </div>
                                 </div>
                             ))}
@@ -502,59 +603,31 @@ export default function DSAPracticePage() {
 
                 {/* Study tips */}
                 {analysis?.studyTips && analysis.studyTips.length > 0 && (
-                    <div className="glass-card rounded-2xl p-6">
-                        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <HiOutlineLightBulb className="w-5 h-5 text-amber-400" />Study Tips for Weak Areas
+                    <div className="glass-card rounded-3xl p-6 lg:p-7 space-y-4">
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                            <HiOutlineLightBulb className="text-amber-400" />
+                            AI Recommended Focus Areas &amp; Tips
                         </h3>
-                        <div className="space-y-3">
+                        <div className="space-y-2.5">
                             {analysis.studyTips.map((tip, i) => (
-                                <div key={i} className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/15 flex gap-3">
-                                    <span className="text-amber-400 mt-0.5 flex-shrink-0">💡</span>
-                                    <p className="text-gray-300 text-sm">{tip}</p>
+                                <div key={i} className="p-3.5 rounded-2xl bg-amber-500/[0.06] border border-amber-500/15 flex gap-3 items-start">
+                                    <span className="text-amber-400 mt-0.5 shrink-0">💡</span>
+                                    <p className="text-slate-300 text-xs leading-relaxed">{tip}</p>
                                 </div>
                             ))}
                         </div>
-                        {analysis.weakTopics.length > 0 && (
-                            <div className="mt-4 flex items-center gap-2 flex-wrap">
-                                <span className="text-xs text-gray-500">Focus on:</span>
-                                {analysis.weakTopics.map((wt, i) => (
-                                    <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-red-400">{wt}</span>
-                                ))}
-                            </div>
-                        )}
                     </div>
                 )}
 
-                {/* Per-question review */}
-                <div className="glass-card rounded-2xl p-6">
-                    <h3 className="text-lg font-semibold text-white mb-5">Question Review</h3>
-                    <div className="space-y-3">
-                        {results.map((r, i) => (
-                            <div key={i} className={`p-4 rounded-xl border ${r.skipped ? 'bg-gray-500/5 border-gray-500/15' : r.correct ? 'bg-emerald-500/5 border-emerald-500/15' : 'bg-red-500/5 border-red-500/15'}`}>
-                                <div className="flex items-start gap-3">
-                                    <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold mt-0.5 ${r.skipped ? 'bg-gray-500/30 text-gray-400' : r.correct ? 'bg-emerald-500/30 text-emerald-400' : 'bg-red-500/30 text-red-400'}`}>
-                                        {i + 1}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm text-gray-200 mb-1">{r.question}</p>
-                                        {!r.correct && !r.skipped && r.selectedOption !== null && (
-                                            <p className="text-xs text-red-400 mb-1">Your answer: {r.options[r.selectedOption]}</p>
-                                        )}
-                                        <p className="text-xs text-gray-400 leading-relaxed">{r.explanation}</p>
-                                    </div>
-                                    <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap ${r.skipped ? 'bg-gray-500/20 text-gray-400' : r.correct ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
-                                        {r.skipped ? 'Skipped' : r.correct ? '✓ Correct' : '✗ Wrong'}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                <div className="flex justify-center">
+                    <button
+                        onClick={restart}
+                        className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-semibold text-xs shadow-lg shadow-indigo-500/25 transition-all flex items-center gap-2"
+                    >
+                        <HiOutlineArrowPath className="w-4 h-4" />
+                        Practice Another Topic
+                    </button>
                 </div>
-
-                <button onClick={restart}
-                    className="w-full py-4 rounded-xl bg-gradient-to-r from-violet-600 to-cyan-600 text-white font-semibold hover:from-violet-500 hover:to-cyan-500 transition-all shadow-lg shadow-violet-500/25 flex items-center justify-center gap-2">
-                    <HiOutlineArrowPath className="w-5 h-5" />Practice Again
-                </button>
             </div>
         );
     }

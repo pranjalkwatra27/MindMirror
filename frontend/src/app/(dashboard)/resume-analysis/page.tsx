@@ -94,215 +94,238 @@ export default function ResumeAnalysisPage() {
         setError('');
     };
 
-    const scoreColor = (score: number) => {
-        if (score >= 80) return 'text-emerald-400';
-        if (score >= 60) return 'text-amber-400';
-        return 'text-red-400';
-    };
-
     return (
-        <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-8">
-            <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Resume Analyzer</h1>
-                <p className="text-gray-400">Upload your PDF resume to receive deep ATS grading, structure feedback, and concrete suggestions.</p>
+        <div className="p-6 lg:p-8 space-y-8 max-w-6xl mx-auto">
+            {/* Header Banner */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0e1432] via-[#0d1228] to-[#070914] border border-white/[0.08] p-7 lg:p-9 shadow-2xl backdrop-blur-2xl">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+                <div className="relative z-10">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-semibold tracking-wide mb-3">
+                        <HiOutlineSparkles className="w-3.5 h-3.5" />
+                        AI ATS Parsing Engine
+                    </div>
+                    <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
+                        Resume &amp; ATS Score Optimizer
+                    </h1>
+                    <p className="text-slate-300 text-xs lg:text-sm mt-1 max-w-2xl leading-relaxed">
+                        Deep multi-dimensional analysis measuring technical depth, quantitative business impact, recruiter readability, and ATS machine-parser compatibility.
+                    </p>
+                </div>
             </div>
 
+            {/* Upload Area or Results */}
             {!analysis ? (
-                <div className="glass-card rounded-2xl p-8 space-y-6">
+                <div className="glass-card rounded-3xl p-8 lg:p-12 text-center max-w-3xl mx-auto space-y-6">
                     <div
                         {...getRootProps()}
-                        className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-4 ${
+                        className={`border-2 border-dashed rounded-3xl p-10 lg:p-14 cursor-pointer transition-all duration-300 flex flex-col items-center justify-center ${
                             isDragActive
-                                ? 'border-violet-500 bg-violet-500/5'
-                                : 'border-white/10 hover:border-white/20 bg-white/5'
+                                ? 'border-indigo-400 bg-indigo-500/10 scale-[1.01]'
+                                : file
+                                ? 'border-indigo-500/50 bg-indigo-950/20'
+                                : 'border-white/[0.12] hover:border-indigo-500/40 hover:bg-white/[0.02]'
                         }`}
                     >
                         <input {...getInputProps()} />
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-violet-500/25">
-                            <HiOutlineCloudArrowUp className="w-8 h-8" />
+                        <div className="w-16 h-16 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center mb-4 text-indigo-400 shadow-lg shadow-indigo-500/10">
+                            {file ? <HiOutlineDocumentText className="w-8 h-8" /> : <HiOutlineCloudArrowUp className="w-8 h-8" />}
                         </div>
-                        <div>
-                            <p className="text-white font-semibold text-lg">
-                                {file ? file.name : 'Drag & drop your resume here'}
-                            </p>
-                            <p className="text-gray-500 text-sm mt-1">Supports PDF format only (Max 5MB)</p>
-                        </div>
-                        {file && (
-                            <span className="text-xs px-3 py-1 rounded-full bg-violet-500/20 text-violet-400 border border-violet-500/30">
-                                File selected successfully
-                            </span>
+
+                        {file ? (
+                            <div className="space-y-1">
+                                <p className="text-white font-semibold text-sm">{file.name}</p>
+                                <p className="text-slate-400 text-xs font-mono-metric">{(file.size / 1024).toFixed(1)} KB • PDF Document</p>
+                                <p className="text-indigo-400 text-xs font-medium pt-2">Click or drop another file to replace</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-2">
+                                <p className="text-white font-semibold text-base">Drop your PDF resume here, or <span className="text-indigo-400 underline underline-offset-4">browse</span></p>
+                                <p className="text-slate-400 text-xs">Supports PDF format up to 10MB • ATS-compatible text extraction</p>
+                            </div>
                         )}
                     </div>
 
                     {error && (
-                        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center gap-2">
-                            <HiOutlineXCircle className="w-5 h-5 flex-shrink-0" />
-                            {error}
+                        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-medium text-left flex items-start gap-2">
+                            <span className="text-rose-400">⚠️</span>
+                            <span>{error}</span>
                         </div>
                     )}
 
-                    <button
-                        onClick={handleUpload}
-                        disabled={!file || loading}
-                        className="w-full py-4 rounded-xl bg-gradient-to-r from-violet-600 to-cyan-600 text-white font-semibold hover:from-violet-500 hover:to-cyan-500 transition-all shadow-lg shadow-violet-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                        {loading ? (
-                            <>
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                Analyzing Resume Content…
-                            </>
-                        ) : (
-                            <>
-                                <HiOutlineSparkles className="w-5 h-5" />
-                                Start ATS Analysis
-                            </>
-                        )}
-                    </button>
+                    <div className="flex justify-center pt-2">
+                        <button
+                            onClick={handleUpload}
+                            disabled={!file || loading}
+                            className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-semibold text-xs shadow-lg shadow-indigo-500/25 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                        >
+                            {loading ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    Parsing &amp; Scoring Dimensions…
+                                </>
+                            ) : (
+                                <>
+                                    <HiOutlineSparkles className="w-4 h-4" />
+                                    Analyze Resume with AI
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <div className="space-y-8 animate-fade-in">
-                    {/* Header score card */}
-                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600/20 via-purple-600/10 to-cyan-600/20 border border-white/10 p-8">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
-                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-500/10 rounded-full blur-[60px] translate-y-1/2 -translate-x-1/2" />
+                    {/* Top Action Bar */}
+                    <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-400 font-medium">Analysis Completed for <span className="text-slate-200 font-semibold">{file?.name || 'Resume'}</span></span>
+                        <button
+                            onClick={resetAnalysis}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white text-xs font-medium border border-white/[0.08] transition-colors"
+                        >
+                            <HiOutlineArrowPath className="w-3.5 h-3.5" />
+                            Upload Another Resume
+                        </button>
+                    </div>
 
-                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div className="text-center md:text-left space-y-2">
-                                <span className="text-xs px-2.5 py-0.5 rounded-full bg-violet-500/20 text-violet-400 border border-violet-500/30 font-medium">
-                                    Analysis Complete
-                                </span>
-                                <h2 className="text-2xl font-bold text-white">
-                                    Profile: <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">{analysis.candidate_profile.primary_domain}</span>
+                    {/* Overall Score + Candidate Profile Banner */}
+                    <div className="glass-card rounded-3xl p-7 lg:p-9">
+                        <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+                            <div className="space-y-3 flex-1 text-center lg:text-left">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+                                    Domain: {analysis.candidate_profile?.primary_domain || 'Engineering'}
+                                </div>
+                                <h2 className="text-2xl font-bold text-white tracking-tight">
+                                    Candidate Profile &amp; Match Verdict
                                 </h2>
-                                <p className="text-gray-400 text-sm">Experience level: <span className="text-white font-medium">{analysis.candidate_profile.experience_level}</span></p>
-                                <p className="text-gray-300 max-w-xl text-sm leading-relaxed mt-2">&ldquo;{analysis.candidate_profile.core_strength}&rdquo;</p>
+                                <p className="text-slate-300 text-xs lg:text-sm leading-relaxed max-w-2xl">
+                                    <strong className="text-indigo-300">Core Strength:</strong> {analysis.candidate_profile?.core_strength || 'Strong fundamental knowledge'}. Level assessed at <span className="font-semibold text-white">{analysis.candidate_profile?.experience_level || 'Entry-Level'}</span>.
+                                </p>
+                                {analysis.recommended_roles && analysis.recommended_roles.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 pt-2 justify-center lg:justify-start">
+                                        <span className="text-xs text-slate-400 font-medium self-center mr-1">Recommended Roles:</span>
+                                        {analysis.recommended_roles.map((r, i) => (
+                                            <span key={i} className="text-xs px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-medium">
+                                                {r}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                            <div className="flex items-center gap-6">
-                                <ScoreCircle score={analysis.score_breakdown.overall_score} label="Overall ATS" size={120} />
+
+                            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-center shrink-0">
+                                <ScoreCircle
+                                    score={analysis.score_breakdown?.overall_score || 0}
+                                    label="Overall ATS Score"
+                                    size={125}
+                                />
                             </div>
                         </div>
                     </div>
 
-                    {/* Breakdown grids */}
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                        {[
-                            { label: 'Technical Depth', score: analysis.score_breakdown.technical_depth },
-                            { label: 'Impact & Metrics', score: analysis.score_breakdown.impact },
-                            { label: 'Clarity & Quality', score: analysis.score_breakdown.clarity },
-                            { label: 'Project Strength', score: analysis.score_breakdown.project_strength },
-                            { label: 'Industry Ready', score: analysis.score_breakdown.industry_readiness },
-                        ].map((stat, i) => (
-                            <div key={i} className="glass-card rounded-xl p-4 text-center">
-                                <p className="text-xs text-gray-400 mb-1">{stat.label}</p>
-                                <p className={`text-2xl font-bold ${scoreColor(stat.score)}`}>{stat.score}%</p>
-                            </div>
-                        ))}
+                    {/* 5-Dimensional Breakdown */}
+                    <div className="glass-card rounded-3xl p-6 lg:p-7">
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 mb-4 flex items-center gap-2">
+                            <HiOutlineSparkles className="text-indigo-400" />
+                            Multi-Dimensional Score Breakdown
+                        </h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                            {[
+                                { label: 'Technical Depth', score: analysis.score_breakdown?.technical_depth || 0 },
+                                { label: 'Actionable Impact', score: analysis.score_breakdown?.impact || 0 },
+                                { label: 'Readability / Clarity', score: analysis.score_breakdown?.clarity || 0 },
+                                { label: 'Project Strength', score: analysis.score_breakdown?.project_strength || 0 },
+                                { label: 'ATS Readiness', score: analysis.score_breakdown?.industry_readiness || 0 },
+                            ].map((dim) => (
+                                <div key={dim.label} className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] text-center space-y-2">
+                                    <div className="text-xl font-bold font-mono-metric text-white">{dim.score}%</div>
+                                    <p className="text-[11px] text-slate-400 leading-tight">{dim.label}</p>
+                                    <div className="w-full bg-white/[0.06] rounded-full h-1 overflow-hidden">
+                                        <div
+                                            className="h-1 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400"
+                                            style={{ width: `${dim.score}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Strengths */}
-                        <div className="glass-card rounded-2xl p-6 space-y-4">
-                            <h3 className="text-white font-bold text-lg border-b border-white/10 pb-3">Strengths &amp; Core Highlights</h3>
-                            <div className="space-y-3">
-                                {analysis.strengths.map((str, idx) => (
-                                    <div key={idx} className="flex gap-3 items-start">
-                                        <HiOutlineCheck className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
-                                        <p className="text-gray-300 text-sm leading-relaxed">{str}</p>
-                                    </div>
+                    {/* Extracted Skills & Strengths */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Skills */}
+                        <div className="glass-card rounded-3xl p-6">
+                            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                <HiOutlineCheck className="text-emerald-400" />
+                                Extracted Technical Skills ({analysis.technical_skills?.length || 0})
+                            </h3>
+                            <div className="flex flex-wrap gap-2 max-h-56 overflow-y-auto pr-1">
+                                {analysis.technical_skills?.map((skill, i) => (
+                                    <span key={i} className="text-xs px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-slate-200 font-medium">
+                                        {skill}
+                                    </span>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Recommended Roles */}
-                        <div className="glass-card rounded-2xl p-6 space-y-4">
-                            <h3 className="text-white font-bold text-lg border-b border-white/10 pb-3 flex items-center gap-2">
-                                <HiOutlineDocumentText className="w-5 h-5 text-violet-400" />
-                                Recommended Roles
+                        {/* Identified Strengths */}
+                        <div className="glass-card rounded-3xl p-6">
+                            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                <HiOutlineCheckCircle className="text-cyan-400" />
+                                Highlighted Strengths
                             </h3>
                             <div className="space-y-2.5">
-                                {analysis.recommended_roles.map((role, idx) => (
-                                    <div key={idx} className="flex items-center gap-3 py-2 px-3 rounded-lg bg-white/5 text-gray-300 hover:text-white text-sm font-medium transition-colors">
-                                        <HiOutlineArrowRight className="w-4 h-4 text-violet-400" />
-                                        {role}
+                                {analysis.strengths?.map((s, i) => (
+                                    <div key={i} className="p-3 rounded-xl bg-emerald-500/[0.06] border border-emerald-500/20 text-xs text-emerald-200/90 flex items-start gap-2">
+                                        <span className="text-emerald-400 mt-0.5">✓</span>
+                                        <span>{s}</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
 
-                    {/* Skill Tags */}
-                    <div className="glass-card rounded-2xl p-6 space-y-3">
-                        <h3 className="text-white font-bold text-lg">Detected Technical Skills</h3>
-                        <div className="flex flex-wrap gap-2 pt-2">
-                            {analysis.technical_skills.map((skill, idx) => (
-                                <span key={idx} className="px-3 py-1 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold">
-                                    {skill}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Detailed Mistakes & Corrections */}
-                    <div className="space-y-6">
-                        <h3 className="text-2xl font-bold text-white flex items-center gap-3 border-b border-white/10 pb-4">
-                            <HiOutlineXCircle className="w-7 h-7 text-red-400" />
-                            Mistakes Found &amp; How to Correct Them
-                        </h3>
-                        <div className="grid grid-cols-1 gap-6">
-                            {analysis.mistakes_found.map((item, idx) => (
-                                <div key={idx} className="glass-card rounded-2xl overflow-hidden border border-red-500/20 relative">
-                                    <div className="absolute top-0 left-0 w-1.5 h-full bg-red-500/50" />
-                                    <div className="p-6 space-y-4 pl-8">
-                                        <div>
-                                            <h4 className="text-red-400 text-sm font-bold uppercase tracking-wider mb-1">Mistake Found</h4>
-                                            <p className="text-white text-lg font-medium">{item.mistake}</p>
+                    {/* Mistakes & Correction Suggestions */}
+                    {analysis.mistakes_found && analysis.mistakes_found.length > 0 && (
+                        <div className="glass-card rounded-3xl p-6 lg:p-7">
+                            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                <HiOutlineXCircle className="text-rose-400" />
+                                Detected Flaws &amp; How to Fix ({analysis.mistakes_found.length})
+                            </h3>
+                            <div className="space-y-3">
+                                {analysis.mistakes_found.map((item, i) => (
+                                    <div key={i} className="p-4 rounded-2xl bg-black/30 border border-white/[0.06] space-y-2">
+                                        <div className="flex items-center gap-2 text-rose-300 font-semibold text-xs">
+                                            <span className="px-2 py-0.5 rounded bg-rose-500/20 text-[10px]">ISSUE</span>
+                                            <span>{item.mistake}</span>
                                         </div>
-                                        <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                                            <h4 className="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                                                <HiOutlineLightBulb className="w-4 h-4" />
-                                                Why it's wrong
-                                            </h4>
-                                            <p className="text-gray-300 text-sm leading-relaxed">{item.why_its_wrong}</p>
-                                        </div>
-                                        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                                            <h4 className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                                                <HiOutlineCheckCircle className="w-4 h-4" />
-                                                How to correct it
-                                            </h4>
-                                            <p className="text-emerald-50 font-medium text-sm leading-relaxed">{item.how_to_correct}</p>
-                                        </div>
+                                        <p className="text-slate-300 text-xs"><strong className="text-slate-400">Why it hurts:</strong> {item.why_its_wrong}</p>
+                                        <p className="text-emerald-300 text-xs bg-emerald-500/[0.06] p-2.5 rounded-xl border border-emerald-500/15">
+                                            💡 <strong>Recommended Action:</strong> {item.how_to_correct}
+                                        </p>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Perfect Score Roadmap */}
-                    <div className="glass-card rounded-2xl p-8 space-y-6 border border-cyan-500/30 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
-                        <h3 className="text-2xl font-bold text-white flex items-center gap-3 relative z-10">
-                            <HiOutlineSparkles className="w-7 h-7 text-cyan-400" />
-                            Roadmap to a Perfect Score
-                        </h3>
-                        <div className="space-y-4 relative z-10">
-                            {analysis.perfect_score_roadmap.map((step, idx) => (
-                                <div key={idx} className="flex gap-4 items-center p-4 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-500/30 transition-colors">
-                                    <span className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-violet-500 text-white font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-lg shadow-cyan-500/20">
-                                        {idx + 1}
-                                    </span>
-                                    <p className="text-cyan-50 text-base font-medium">{step}</p>
-                                </div>
-                            ))}
+                    {analysis.perfect_score_roadmap && analysis.perfect_score_roadmap.length > 0 && (
+                        <div className="glass-card rounded-3xl p-6 lg:p-7">
+                            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                <HiOutlineLightBulb className="text-amber-400" />
+                                Actionable Checklist to Reach 95%+ ATS Score
+                            </h3>
+                            <div className="space-y-2">
+                                {analysis.perfect_score_roadmap.map((step, i) => (
+                                    <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                                        <span className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                            {i + 1}
+                                        </span>
+                                        <p className="text-slate-300 text-xs leading-relaxed">{step}</p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-
-                    <button
-                        onClick={resetAnalysis}
-                        className="w-full py-4 rounded-xl border border-white/10 hover:bg-white/5 text-white font-semibold transition-all flex items-center justify-center gap-2"
-                    >
-                        <HiOutlineArrowPath className="w-5 h-5" />
-                        Analyze Another Resume
-                    </button>
+                    )}
                 </div>
             )}
         </div>

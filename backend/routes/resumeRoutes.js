@@ -5,6 +5,7 @@ const { authenticateToken } = require("../config/auth");
 const {
   analyzeResume,
   getResumeAnalysis,
+  compareJobDescription,
 } = require("../controllers/resumeController");
 
 const router = express.Router();
@@ -32,6 +33,7 @@ const upload = multer({
 });
 
 router.post("/analyze", authenticateToken, upload.single("resume"), analyzeResume);
+router.post("/compare-job", authenticateToken, upload.single("resume"), compareJobDescription);
 router.get("/:resumeId", authenticateToken, getResumeAnalysis);
 
 module.exports = router;

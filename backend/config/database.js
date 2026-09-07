@@ -3,18 +3,14 @@ require("dotenv").config();
 
 const connectDB = async () => {
   try {
-    const mongoURL = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/evolveai";
-    await mongoose.connect(mongoURL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const mongoURL = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/mindmirror";
+    await mongoose.connect(mongoURL);
     console.log("✅ MongoDB Connected Successfully");
   } catch (error) {
-    console.warn("⚠️  MongoDB Available, running in demo mode");
-    console.log("   Note: Data will not persist between sessions without MongoDB");
-    // Don't exit - allow app to run in demo mode
+    console.warn("⚠️  MongoDB offline, running in Demo Mode with in-memory persistence");
   }
 };
+
 
 const disconnectDB = async () => {
   try {

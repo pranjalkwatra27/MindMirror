@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { HiOutlineEnvelope, HiOutlineLockClosed, HiOutlineUser, HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2';
+import { HiOutlineEnvelope, HiOutlineLockClosed, HiOutlineUser, HiOutlineEye, HiOutlineEyeSlash, HiOutlineSparkles } from 'react-icons/hi2';
 
 export default function SignupPage() {
     const [name, setName] = useState('');
@@ -51,29 +51,37 @@ export default function SignupPage() {
             {/* Left Panel - Branding */}
             <div className="hidden lg:flex flex-1 items-center justify-center p-12 relative overflow-hidden">
                 <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-violet-500/10 rounded-full blur-[100px]" />
+                <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-[100px]" />
 
-                <div className="relative z-10 max-w-lg">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white font-bold text-2xl mb-8 shadow-2xl shadow-cyan-500/25 animate-float">
-                        E
+                <div className="relative z-10 max-w-lg space-y-6">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-cyan-500 flex items-center justify-center text-white font-extrabold text-2xl shadow-xl shadow-cyan-500/25 animate-float">
+                        M
                     </div>
-                    <h1 className="text-5xl font-bold text-white mb-4">
-                        Start your{' '}
-                        <span className="shimmer-text">journey</span>
-                    </h1>
-                    <p className="text-xl text-gray-400 mb-8 leading-relaxed">
-                        Join EvolveAI and transform your interview preparation with AI-powered feedback, resume analysis, and personalized coaching.
-                    </p>
-                    <div className="space-y-4">
+                    <div>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-semibold tracking-wide mb-3">
+                            <HiOutlineSparkles className="w-3.5 h-3.5" />
+                            Personalized Placement Journey
+                        </div>
+                        <h1 className="text-4xl font-extrabold text-white tracking-tight">
+                            Start preparing with <span className="shimmer-text">MindMirror</span>
+                        </h1>
+                        <p className="text-slate-300 text-sm mt-3 leading-relaxed">
+                            Join thousands of candidates mastering technical and behavioral interviews with memory-aware AI coaching.
+                        </p>
+                    </div>
+
+                    <div className="space-y-3 pt-2">
                         {[
-                            '🎯 Practice with AI-generated interview questions',
-                            '📊 Get detailed resume analysis and scoring',
-                            '🧠 Track your progress and weak areas',
-                            '🚀 Boost your placement readiness score',
+                            'Adaptive Day-by-Day Placement Roadmap',
+                            'Interactive Mock Interviews with STAR Scoring',
+                            'Automated ATS Resume Optimization',
+                            'Company-Specific Interview Question Packs',
                         ].map((feature, i) => (
-                            <div key={i} className="flex items-center gap-3 text-gray-300">
-                                <span className="text-lg">{feature.slice(0, 2)}</span>
-                                <span className="text-sm">{feature.slice(3)}</span>
+                            <div key={i} className="flex items-center gap-3 text-slate-300 text-xs font-medium">
+                                <div className="w-5 h-5 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 text-xs shrink-0">
+                                    ✓
+                                </div>
+                                <span>{feature}</span>
                             </div>
                         ))}
                     </div>
@@ -82,91 +90,97 @@ export default function SignupPage() {
 
             {/* Right Panel - Form */}
             <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
-                <div className="w-full max-w-md">
-                    <div className="lg:hidden flex items-center gap-3 mb-8">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white font-bold text-lg">
-                            E
+                <div className="w-full max-w-md space-y-6">
+                    {/* Mobile branding */}
+                    <div className="lg:hidden flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                            M
                         </div>
-                        <h1 className="text-xl font-bold text-white">EvolveAI</h1>
+                        <div>
+                            <h1 className="text-lg font-bold text-white">MindMirror</h1>
+                            <p className="text-[10px] text-slate-400">AI Placement Mirror</p>
+                        </div>
                     </div>
 
-                    <h2 className="text-3xl font-bold text-white mb-2">Create account</h2>
-                    <p className="text-gray-400 mb-8">Start preparing for your dream placement today.</p>
+                    <div className="space-y-1">
+                        <h2 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">Create Account</h2>
+                        <p className="text-slate-400 text-xs">Set up your candidate profile to start practicing</p>
+                    </div>
 
                     {error && (
-                        <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+                        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-medium">
                             {error}
                         </div>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                        <div className="space-y-1.5">
+                            <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider text-slate-300">Full Name</label>
                             <div className="relative">
-                                <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                <HiOutlineUser className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <input
                                     id="name"
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder="John Doe"
+                                    placeholder="Alex Kumar"
                                     required
-                                    className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all"
+                                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-black/40 border border-white/[0.08] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500"
                                 />
                             </div>
                         </div>
 
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                        <div className="space-y-1.5">
+                            <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-slate-300">Email Address</label>
                             <div className="relative">
-                                <HiOutlineEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                <HiOutlineEnvelope className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <input
                                     id="email"
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="name@example.com"
+                                    placeholder="name@university.edu"
                                     required
-                                    className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all"
+                                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-black/40 border border-white/[0.08] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500"
                                 />
                             </div>
                         </div>
 
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                        <div className="space-y-1.5">
+                            <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-slate-300">Password</label>
                             <div className="relative">
-                                <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                <HiOutlineLockClosed className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <input
                                     id="password"
                                     type={showPassword ? 'text' : 'password'}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Min 6 characters"
+                                    placeholder="At least 6 characters"
                                     required
-                                    className="w-full pl-12 pr-12 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all"
+                                    className="w-full pl-10 pr-10 py-3 rounded-xl bg-black/40 border border-white/[0.08] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                                 >
-                                    {showPassword ? <HiOutlineEyeSlash className="w-5 h-5" /> : <HiOutlineEye className="w-5 h-5" />}
+                                    {showPassword ? <HiOutlineEyeSlash className="w-4 h-4" /> : <HiOutlineEye className="w-4 h-4" />}
                                 </button>
                             </div>
                         </div>
 
-                        <div>
-                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">Confirm Password</label>
+                        <div className="space-y-1.5">
+                            <label htmlFor="confirmPassword" className="block text-xs font-bold uppercase tracking-wider text-slate-300">Confirm Password</label>
                             <div className="relative">
-                                <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                <HiOutlineLockClosed className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <input
                                     id="confirmPassword"
                                     type="password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    placeholder="••••••••"
+                                    placeholder="Repeat password"
                                     required
-                                    className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all"
+                                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-black/40 border border-white/[0.08] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500"
                                 />
                             </div>
                         </div>
@@ -174,23 +188,23 @@ export default function SignupPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-cyan-600 text-white font-semibold hover:from-violet-500 hover:to-cyan-500 transition-all duration-300 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
+                            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white font-semibold text-xs shadow-lg shadow-indigo-500/25 hover:from-indigo-500 hover:to-cyan-500 transition-all disabled:opacity-40 flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <>
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    Creating account...
+                                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    Creating Profile…
                                 </>
                             ) : (
-                                'Create account'
+                                'Create Free Account'
                             )}
                         </button>
                     </form>
 
-                    <p className="mt-8 text-center text-gray-400 text-sm">
+                    <p className="text-center text-slate-400 text-xs">
                         Already have an account?{' '}
-                        <Link href="/login" className="text-violet-400 hover:text-violet-300 font-medium transition-colors">
-                            Sign in
+                        <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">
+                            Sign In
                         </Link>
                     </p>
                 </div>

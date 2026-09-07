@@ -10,8 +10,9 @@ import {
     HiOutlineBookOpen,
     HiOutlineArrowTrendingUp,
     HiOutlineExclamationTriangle,
+    HiOutlineSparkles,
 } from 'react-icons/hi2';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 interface InterviewRecord {
     _id: string;
@@ -78,12 +79,6 @@ interface ProgressData {
             dsaScore?: number;
         };
     };
-    learningRoadmap?: {
-        phase: string;
-        topics: string[];
-        estimatedDays: number;
-        priority: string;
-    }[];
 }
 
 export default function ProgressPage() {
@@ -102,9 +97,8 @@ export default function ProgressPage() {
 
     useEffect(() => {
         loadData();
-        // Load MCQ quiz history from localStorage
         try {
-            const saved = localStorage.getItem('evolveai_dsa_sessions');
+            const saved = localStorage.getItem('mindmirror_dsa_sessions') || localStorage.getItem('evolveai_dsa_sessions');
             if (saved) setDsaSessions(JSON.parse(saved));
         } catch { /* ignore */ }
     }, []);
@@ -180,78 +174,96 @@ export default function ProgressPage() {
         .filter(i => i.completed && i.scores)
         .reverse()
         .map((i, idx) => ({
-            name: `Session ${idx + 1}`,
+            name: `S${idx + 1}`,
             confidence: i.scores?.confidenceScore || 0,
             clarity: i.scores?.clarityScore || 0,
             technical: i.scores?.technicalAccuracy || 0,
             overall: i.scores?.overallScore || 0,
         }));
 
-    // Radar data
     const radarData = [
-        { subject: 'Technical', value: progress?.placementReadiness?.breakdown?.technicalScore || placementData?.breakdown?.technicalScore || 0 },
-        { subject: 'Communication', value: progress?.placementReadiness?.breakdown?.communicationScore || placementData?.breakdown?.communicationScore || 0 },
-        { subject: 'Behavioral', value: progress?.placementReadiness?.breakdown?.behavioralScore || placementData?.breakdown?.behavioralScore || 0 },
-        { subject: 'DSA', value: progress?.placementReadiness?.breakdown?.dsaScore || placementData?.breakdown?.dsaScore || 0 },
+        { subject: 'Technical Depth', value: progress?.placementReadiness?.breakdown?.technicalScore || placementData?.breakdown?.technicalScore || 0 },
+        { subject: 'Communication & Delivery', value: progress?.placementReadiness?.breakdown?.communicationScore || placementData?.breakdown?.communicationScore || 0 },
+        { subject: 'Behavioral & STAR', value: progress?.placementReadiness?.breakdown?.behavioralScore || placementData?.breakdown?.behavioralScore || 0 },
+        { subject: 'DSA & Algorithms', value: progress?.placementReadiness?.breakdown?.dsaScore || placementData?.breakdown?.dsaScore || 0 },
     ];
 
     const placementScore = placementData?.placementReadinessScore || progress?.placementReadiness?.score || 0;
 
     if (loading) {
         return (
-            <div className="p-6 lg:p-8 space-y-6">
-                <div className="skeleton h-12 w-48" />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[...Array(3)].map((_, i) => <div key={i} className="skeleton h-40" />)}
+            <div className="p-6 lg:p-8 space-y-6 max-w-6xl mx-auto">
+                <div className="skeleton h-36 w-full rounded-3xl" />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className="skeleton h-24 rounded-2xl" />
+                    ))}
                 </div>
-                <div className="skeleton h-64" />
+                <div className="skeleton h-64 rounded-3xl" />
             </div>
         );
     }
 
     return (
-        <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
-            {/* Header */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Progress & Performance</h1>
-                    <p className="text-gray-400">Track your interview preparation journey and improvement over time</p>
+        <div className="p-6 lg:p-8 space-y-8 max-w-6xl mx-auto animate-fade-in">
+            {/* Header Banner */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0e1432] via-[#0d1228] to-[#070914] border border-white/[0.08] p-7 lg:p-9 shadow-2xl backdrop-blur-2xl">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <div className="space-y-2">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-semibold tracking-wide">
+                            <HiOutlineSparkles className="w-3.5 h-3.5" />
+                            Comprehensive Progress Engine
+                        </div>
+                        <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
+                            Performance Analytics &amp; Trajectory
+                        </h1>
+                        <p className="text-slate-300 text-xs lg:text-sm max-w-2xl leading-relaxed">
+                            Continuous multi-dimensional evaluation measuring your progression toward target company placement.
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={calculatePlacement}
+                        disabled={calculating}
+                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-semibold text-xs shadow-lg shadow-indigo-500/25 disabled:opacity-40 transition-all flex items-center gap-2 self-start lg:self-auto shrink-0"
+                    >
+                        {calculating ? (
+                            <>
+                                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Re-Calculating Score…
+                            </>
+                        ) : (
+                            <>
+                                <HiOutlineTrophy className="w-4 h-4" />
+                                Recalculate Placement Score
+                            </>
+                        )}
+                    </button>
                 </div>
-                <button
-                    onClick={calculatePlacement}
-                    disabled={calculating}
-                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-cyan-600 text-white font-semibold hover:from-violet-500 hover:to-cyan-500 transition-all shadow-lg shadow-violet-500/25 disabled:opacity-50 flex items-center gap-2 self-start"
-                >
-                    {calculating ? (
-                        <>
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            Calculating...
-                        </>
-                    ) : (
-                        <>
-                            <HiOutlineTrophy className="w-5 h-5" />
-                            Calculate Placement Score
-                        </>
-                    )}
-                </button>
             </div>
 
-            {/* Placement Readiness */}
-            <div className="glass-card rounded-2xl p-8">
+            {/* Placement Readiness Breakdown */}
+            <div className="glass-card rounded-3xl p-7 lg:p-8">
                 <div className="flex flex-col lg:flex-row items-center gap-8">
-                    <ScoreCircle score={placementScore} label="Placement Readiness" size={150} />
-                    <div className="flex-1 w-full">
-                        <h3 className="text-xl font-semibold text-white mb-4">Readiness Breakdown</h3>
+                    <div className="shrink-0">
+                        <ScoreCircle score={placementScore} label="Placement Readiness" size={135} />
+                    </div>
+
+                    <div className="flex-1 w-full space-y-4">
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300">
+                            Core Readiness Pillars
+                        </h3>
                         <div className="space-y-3">
                             {radarData.map((item) => (
-                                <div key={item.subject}>
-                                    <div className="flex justify-between text-sm mb-1">
-                                        <span className="text-gray-300">{item.subject}</span>
-                                        <span className="text-white font-medium">{item.value}%</span>
+                                <div key={item.subject} className="space-y-1">
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-slate-300 font-medium">{item.subject}</span>
+                                        <span className="text-white font-bold font-mono-metric">{item.value}%</span>
                                     </div>
-                                    <div className="h-2.5 rounded-full bg-white/5 overflow-hidden">
+                                    <div className="h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
                                         <div
-                                            className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 transition-all duration-700"
+                                            className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400 transition-all duration-700"
                                             style={{ width: `${item.value}%` }}
                                         />
                                     </div>
@@ -263,27 +275,30 @@ export default function ProgressPage() {
 
                 {/* Strengths & Gaps */}
                 {placementData && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/[0.08]">
                         {placementData.strengths && placementData.strengths.length > 0 && (
-                            <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                <h4 className="text-emerald-400 font-medium text-sm mb-3 flex items-center gap-2">
-                                    <HiOutlineTrophy className="w-4 h-4" /> Strengths
+                            <div className="p-4 rounded-2xl bg-emerald-500/[0.05] border border-emerald-500/20 space-y-2">
+                                <h4 className="text-emerald-300 font-bold text-xs flex items-center gap-1.5">
+                                    <HiOutlineTrophy className="w-3.5 h-3.5 text-emerald-400" />
+                                    Validated Strengths
                                 </h4>
-                                <div className="space-y-2">
+                                <div className="space-y-1">
                                     {placementData.strengths.map((s, i) => (
-                                        <p key={i} className="text-gray-300 text-sm">✓ {s}</p>
+                                        <p key={i} className="text-slate-300 text-xs leading-relaxed">✓ {s}</p>
                                     ))}
                                 </div>
                             </div>
                         )}
+
                         {placementData.criticalGaps && placementData.criticalGaps.length > 0 && (
-                            <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10">
-                                <h4 className="text-red-400 font-medium text-sm mb-3 flex items-center gap-2">
-                                    <HiOutlineExclamationTriangle className="w-4 h-4" /> Areas to Improve
+                            <div className="p-4 rounded-2xl bg-rose-500/[0.05] border border-rose-500/20 space-y-2">
+                                <h4 className="text-rose-300 font-bold text-xs flex items-center gap-1.5">
+                                    <HiOutlineExclamationTriangle className="w-3.5 h-3.5 text-rose-400" />
+                                    Priority Areas to Reinforce
                                 </h4>
-                                <div className="space-y-2">
+                                <div className="space-y-1">
                                     {placementData.criticalGaps.map((g, i) => (
-                                        <p key={i} className="text-gray-300 text-sm">⚠ {g}</p>
+                                        <p key={i} className="text-slate-300 text-xs leading-relaxed">⚠️ {g}</p>
                                     ))}
                                 </div>
                             </div>
@@ -292,74 +307,76 @@ export default function ProgressPage() {
                 )}
             </div>
 
-            {/* Score Stats */}
+            {/* Score Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 {[
-                    { label: 'Total Sessions', value: interviews.length, icon: HiOutlineChartBar, color: 'violet' },
-                    { label: 'HR Rounds', value: interviews.filter(i => i.mode === 'HR').length, icon: HiOutlineAcademicCap, color: 'cyan' },
-                    { label: 'Technical', value: interviews.filter(i => i.mode === 'Technical').length, icon: HiOutlineBookOpen, color: 'emerald' },
-                    { label: 'DSA Rounds', value: interviews.filter(i => i.mode === 'Rapid-Fire-DSA').length, icon: HiOutlineArrowTrendingUp, color: 'amber' },
-                    { label: 'Quiz Sessions', value: dsaSessions.length, icon: HiOutlineTrophy, color: 'pink' },
+                    { label: 'Total Simulations', value: interviews.length, icon: HiOutlineChartBar, color: 'text-indigo-400', bg: 'bg-indigo-500/15' },
+                    { label: 'HR Rounds', value: interviews.filter(i => i.mode === 'HR').length, icon: HiOutlineAcademicCap, color: 'text-cyan-400', bg: 'bg-cyan-500/15' },
+                    { label: 'Technical Sessions', value: interviews.filter(i => i.mode === 'Technical').length, icon: HiOutlineBookOpen, color: 'text-emerald-400', bg: 'bg-emerald-500/15' },
+                    { label: 'Rapid DSA', value: interviews.filter(i => i.mode === 'Rapid-Fire-DSA').length, icon: HiOutlineArrowTrendingUp, color: 'text-amber-400', bg: 'bg-amber-500/15' },
+                    { label: 'DSA Quizzes', value: dsaSessions.length, icon: HiOutlineTrophy, color: 'text-purple-400', bg: 'bg-purple-500/15' },
                 ].map((stat, i) => (
-                    <div key={i} className="glass-card rounded-xl p-5">
-                        <stat.icon className={`w-6 h-6 text-${stat.color}-400 mb-3`} />
-                        <p className="text-2xl font-bold text-white">{stat.value}</p>
-                        <p className="text-xs text-gray-400 mt-1">{stat.label}</p>
+                    <div key={i} className="glass-card rounded-2xl p-5">
+                        <div className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center mb-3`}>
+                            <stat.icon className={`w-4 h-4 ${stat.color}`} />
+                        </div>
+                        <p className="text-2xl font-bold font-mono-metric text-white">{stat.value}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">{stat.label}</p>
                     </div>
                 ))}
             </div>
 
-            {/* Charts */}
+            {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Score Trend */}
-                <div className="glass-card rounded-2xl p-6">
-                    <h3 className="text-lg font-semibold text-white mb-6">Score Progression</h3>
+                <div className="glass-card rounded-3xl p-6">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 mb-6">Historical Score Progression</h3>
                     {chartData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height={250}>
+                        <ResponsiveContainer width="100%" height={230}>
                             <AreaChart data={chartData}>
                                 <defs>
                                     <linearGradient id="confGrad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
+                                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="clarGrad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#38bdf8" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <XAxis dataKey="name" stroke="#4b5563" fontSize={11} />
-                                <YAxis stroke="#4b5563" fontSize={11} domain={[0, 100]} />
-                                <Tooltip contentStyle={{ background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }} />
-                                <Area type="monotone" dataKey="confidence" stroke="#8b5cf6" fill="url(#confGrad)" strokeWidth={2} name="Confidence" />
-                                <Area type="monotone" dataKey="clarity" stroke="#06b6d4" fill="url(#clarGrad)" strokeWidth={2} name="Clarity" />
+                                <XAxis dataKey="name" stroke="#475569" fontSize={11} />
+                                <YAxis stroke="#475569" fontSize={11} domain={[0, 100]} />
+                                <Tooltip contentStyle={{ background: '#0b1026', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', fontSize: '12px' }} />
+                                <Area type="monotone" dataKey="confidence" stroke="#6366f1" fill="url(#confGrad)" strokeWidth={2} name="Confidence" />
+                                <Area type="monotone" dataKey="clarity" stroke="#38bdf8" fill="url(#clarGrad)" strokeWidth={2} name="Clarity" />
                             </AreaChart>
                         </ResponsiveContainer>
                     ) : (
-                        <div className="h-[250px] flex items-center justify-center text-gray-500 text-sm">
-                            Complete interviews to see score progression
+                        <div className="h-[230px] flex items-center justify-center text-slate-400 text-xs">
+                            Complete mock interviews to track your trajectory
                         </div>
                     )}
                 </div>
 
                 {/* Mode Distribution */}
-                <div className="glass-card rounded-2xl p-6">
-                    <h3 className="text-lg font-semibold text-white mb-6">Mode Distribution</h3>
+                <div className="glass-card rounded-3xl p-6">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 mb-6">Simulation Modes Completed</h3>
                     {interviews.length > 0 ? (
-                        <ResponsiveContainer width="100%" height={250}>
+                        <ResponsiveContainer width="100%" height={230}>
                             <BarChart data={[
-                                { mode: 'HR', count: interviews.filter(i => i.mode === 'HR').length },
+                                { mode: 'HR Round', count: interviews.filter(i => i.mode === 'HR').length },
                                 { mode: 'Technical', count: interviews.filter(i => i.mode === 'Technical').length },
                                 { mode: 'Behavioral', count: interviews.filter(i => i.mode === 'Behavioral').length },
                                 { mode: 'DSA', count: interviews.filter(i => i.mode === 'Rapid-Fire-DSA').length },
                             ]}>
-                                <XAxis dataKey="mode" stroke="#4b5563" fontSize={11} />
-                                <YAxis stroke="#4b5563" fontSize={11} />
-                                <Tooltip contentStyle={{ background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }} />
-                                <Bar dataKey="count" fill="#8b5cf6" radius={[8, 8, 0, 0]} name="Sessions" />
+                                <XAxis dataKey="mode" stroke="#475569" fontSize={11} />
+                                <YAxis stroke="#475569" fontSize={11} />
+                                <Tooltip contentStyle={{ background: '#0b1026', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', fontSize: '12px' }} />
+                                <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} name="Completed Sessions" />
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
-                        <div className="h-[250px] flex items-center justify-center text-gray-500 text-sm">
+                        <div className="h-[230px] flex items-center justify-center text-slate-400 text-xs">
                             Complete interviews to see distribution
                         </div>
                     )}
@@ -367,34 +384,35 @@ export default function ProgressPage() {
             </div>
 
             {/* DSA Weakness Mapper */}
-            <div className="glass-card rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                        <HiOutlineBookOpen className="w-5 h-5 text-amber-400" />
+            <div className="glass-card rounded-3xl p-6 lg:p-7 space-y-4">
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-400">
+                        <HiOutlineBookOpen className="w-5 h-5" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold text-white">DSA Weakness Mapper</h3>
-                        <p className="text-xs text-gray-400">Topics identified from your technical interviews</p>
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-white">DSA Weakness Diagnostic</h3>
+                        <p className="text-[11px] text-slate-400">Algorithms &amp; data structures flagged across your mock interviews</p>
                     </div>
                 </div>
 
                 {allDSAWeaknesses.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {allDSAWeaknesses.map((weakness, i) => (
-                            <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/5">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h4 className="text-white font-medium">{weakness.topic}</h4>
-                                    <span className={`text-xs px-2 py-0.5 rounded-full ${weakness.difficulty === 'Easy' ? 'bg-emerald-500/20 text-emerald-400' :
-                                            weakness.difficulty === 'Medium' ? 'bg-amber-500/20 text-amber-400' :
-                                                'bg-red-500/20 text-red-400'
-                                        }`}>
+                            <div key={i} className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-white font-semibold text-xs">{weakness.topic}</h4>
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${
+                                        weakness.difficulty === 'Easy' ? 'bg-emerald-500/15 text-emerald-300' :
+                                        weakness.difficulty === 'Medium' ? 'bg-amber-500/15 text-amber-300' :
+                                        'bg-rose-500/15 text-rose-300'
+                                    }`}>
                                         {weakness.difficulty}
                                     </span>
                                 </div>
-                                {weakness.suggestedResources && weakness.suggestedResources.length > 0 && (
-                                    <div className="space-y-1 mt-2">
-                                        {weakness.suggestedResources.slice(0, 2).map((resource, ri) => (
-                                            <p key={ri} className="text-xs text-gray-400">📚 {resource}</p>
+                                {weakness.suggestedResources && (
+                                    <div className="space-y-1 text-slate-400 text-xs">
+                                        {weakness.suggestedResources.slice(0, 2).map((r, ri) => (
+                                            <p key={ri}>📚 {r}</p>
                                         ))}
                                     </div>
                                 )}
@@ -402,144 +420,57 @@ export default function ProgressPage() {
                         ))}
                     </div>
                 ) : weakAreasList.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                         {weakAreasList.map(([area, freq], i) => (
-                            <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-red-500/15 flex items-center justify-center">
-                                        <span className="text-red-400 text-sm font-bold">{i + 1}</span>
-                                    </div>
-                                    <span className="text-gray-300">{area}</span>
-                                </div>
-                                <span className="text-xs px-3 py-1 rounded-full bg-red-500/15 text-red-400">
+                            <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                                <span className="text-slate-300 text-xs">{area}</span>
+                                <span className="text-[11px] font-mono-metric px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/25">
                                     {freq}x flagged
                                 </span>
                             </div>
                         ))}
                     </div>
-                ) : mcqTopicStats.length > 0 ? (
-                    <div>
-                        <p className="text-xs text-gray-500 mb-4">Based on your DSA quiz practice sessions:</p>
-                        <div className="space-y-4">
-                            {mcqTopicStats.map((ts, i) => (
-                                <div key={i}>
-                                    <div className="flex justify-between text-sm mb-1.5">
-                                        <span className="text-gray-300">{ts.topic}</span>
-                                        <span className={`font-semibold ${ts.score >= 80 ? 'text-emerald-400' : ts.score >= 60 ? 'text-amber-400' : 'text-red-400'}`}>
-                                            {ts.score}% ({ts.total} questions)
-                                        </span>
-                                    </div>
-                                    <div className="h-2 rounded-full bg-white/5 overflow-hidden">
-                                        <div className={`h-full rounded-full transition-all duration-700 ${ts.score >= 80 ? 'bg-emerald-500' : ts.score >= 60 ? 'bg-amber-500' : 'bg-red-500'}`}
-                                            style={{ width: `${ts.score}%` }} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
                 ) : (
-                    <div className="py-8 text-center">
-                        <HiOutlineAcademicCap className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-                        <p className="text-gray-500 text-sm">Complete DSA interviews or take a quiz to map your weak topics</p>
-                        <p className="text-gray-600 text-xs mt-1">Topics include: Arrays, Linked Lists, Dynamic Programming, Graphs, Sorting</p>
-                    </div>
+                    <p className="text-slate-400 text-xs py-4 text-center">Complete technical interview simulations or DSA quizzes to automatically map topic weak spots.</p>
                 )}
             </div>
 
-            {/* DSA Quiz Practice History */}
-            {dsaSessions.length > 0 && (
-                <div className="glass-card rounded-2xl p-6">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
-                            <HiOutlineTrophy className="w-5 h-5 text-violet-400" />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold text-white">DSA Quiz History</h3>
-                            <p className="text-xs text-gray-400">{dsaSessions.length} practice session{dsaSessions.length !== 1 ? 's' : ''} completed</p>
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        {dsaSessions.slice(0, 10).map((session) => (
-                            <div key={session.id} className="flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/8 transition-colors">
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold ${
-                                        session.score >= 80 ? 'bg-emerald-500/20 text-emerald-400' :
-                                        session.score >= 60 ? 'bg-amber-500/20 text-amber-400' :
-                                        'bg-red-500/20 text-red-400'}`}>
-                                        {session.score}%
-                                    </div>
-                                    <div>
-                                        <p className="text-white text-sm font-medium">{session.topic} · {session.difficulty}</p>
-                                        <p className="text-gray-500 text-xs">
-                                            {new Date(session.date).toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                            {' · '}{session.language}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3 text-right">
-                                    <div className="hidden sm:block">
-                                        <p className="text-xs text-emerald-400">{session.correct} correct</p>
-                                        <p className="text-xs text-red-400">{session.wrong} wrong</p>
-                                    </div>
-                                    {session.weakTopics.length > 0 && (
-                                        <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 hidden md:inline">
-                                            ⚠ {session.weakTopics[0]}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
             {/* Interview History */}
-            <div className="glass-card rounded-2xl p-6">
-                <h3 className="text-lg font-semibold text-white mb-6">Interview History</h3>
+            <div className="glass-card rounded-3xl p-6 lg:p-7 space-y-4">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-white">Full Session History</h3>
                 {interviews.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                         {interviews.map((interview) => (
-                            <div key={interview._id} className="flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/8 transition-colors">
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold
-                    ${interview.mode === 'HR' ? 'bg-violet-500/20 text-violet-400' :
-                                            interview.mode === 'Technical' ? 'bg-cyan-500/20 text-cyan-400' :
-                                                interview.mode === 'Behavioral' ? 'bg-emerald-500/20 text-emerald-400' :
-                                                    'bg-amber-500/20 text-amber-400'}`}
-                                    >
+                            <div key={interview._id} className="flex items-center justify-between p-3.5 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.04] transition-colors">
+                                <div className="flex items-center gap-3.5">
+                                    <div className="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center text-xs font-bold text-indigo-300">
                                         {interview.mode?.charAt(0)}
                                     </div>
                                     <div>
-                                        <p className="text-white text-sm font-medium">{interview.mode} Round</p>
-                                        <p className="text-gray-500 text-xs">
+                                        <p className="text-white text-xs font-semibold">{interview.mode} Round</p>
+                                        <p className="text-slate-400 text-[10px]">
                                             {new Date(interview.startTime).toLocaleDateString('en', {
-                                                year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                                                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                                             })}
                                             {interview.targetRole && ` • ${interview.targetRole}`}
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-3">
                                     {interview.scores?.overallScore !== undefined && (
-                                        <div className="text-right">
-                                            <p className="text-white font-semibold">{Math.round(interview.scores.overallScore)}%</p>
-                                            <p className="text-xs text-gray-500">Score</p>
-                                        </div>
+                                        <span className="text-xs font-bold font-mono-metric text-white">{Math.round(interview.scores.overallScore)}%</span>
                                     )}
-                                    <span className={`text-xs px-2.5 py-1 rounded-full ${interview.completed ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
-                                        }`}>
-                                        {interview.completed ? 'Completed' : 'In Progress'}
+                                    <span className={`text-[10px] px-2.5 py-0.5 rounded-md font-medium border ${
+                                        interview.completed ? 'bg-emerald-500/15 border-emerald-500/25 text-emerald-300' : 'bg-amber-500/15 border-amber-500/25 text-amber-300'
+                                    }`}>
+                                        {interview.completed ? 'Evaluated' : 'In Progress'}
                                     </span>
                                 </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="py-12 text-center text-gray-500">
-                        <HiOutlineChartBar className="w-10 h-10 mx-auto mb-3 text-gray-600" />
-                        <p className="text-sm">No interview sessions yet</p>
-                        <p className="text-xs text-gray-600 mt-1">Start practicing to build your interview history</p>
-                    </div>
+                    <p className="text-slate-400 text-xs py-4 text-center">No simulation sessions recorded yet.</p>
                 )}
             </div>
         </div>

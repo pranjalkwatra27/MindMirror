@@ -1,8 +1,8 @@
 #!/bin/bash
-# HireMind - Setup Script
-# This script automates the initial setup of HireMind
+# MindMirror - Setup Script
+# Automates dependencies and setup for MindMirror
 
-echo "🧠 HireMind - AI Interview + Placement Prep Coach"
+echo "🧠 MindMirror - AI Interview + Placement Prep Coach"
 echo "=================================================="
 echo ""
 
@@ -24,42 +24,19 @@ fi
 echo "  npm version: $(npm --version)"
 echo ""
 
-# Navigate to backend
-cd backend || exit 1
-
 # Install dependencies
-echo "📦 Installing backend dependencies..."
+echo "📦 Installing root, backend, and frontend dependencies..."
 npm install
+(cd backend && npm install)
+(cd frontend && npm install)
 echo "✓ Dependencies installed"
 echo ""
 
-# Check .env file
-if [ ! -f .env ]; then
-    echo "⚠️  .env file not found"
-    echo ""
-    echo "Create backend/.env with:"
-    cat << 'EOF'
-MONGODB_URI=mongodb://localhost:27017/hiremind
-JWT_SECRET=your_super_secret_jwt_key_here
-JWT_EXPIRE=7d
-GEMINI_API_KEY=your_gemini_api_key_here
-PORT=3000
-NODE_ENV=development
-FRONTEND_URL=http://localhost:5500
-EOF
-    echo ""
-    echo "Get GEMINI_API_KEY from: https://aistudio.google.com/"
-    echo ""
-else
-    echo "✓ .env file found"
-fi
-
-echo ""
 echo "🚀 Setup Complete!"
 echo ""
-echo "Next steps:"
-echo "1. Start MongoDB: mongod (or use MongoDB Atlas URL in .env)"
-echo "2. Start backend: npm start (in backend/ directory)"
-echo "3. Start frontend: python -m http.server 5500 (in frontend/ directory)"
-echo "4. Open browser: http://localhost:5500"
+echo "To run the application:"
+echo "  npm run dev"
+echo ""
+echo "- Frontend: http://localhost:3000"
+echo "- Backend:  http://localhost:5001"
 echo ""

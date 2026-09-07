@@ -19,21 +19,33 @@ const callAI = async (prompt) => {
       }, {
         headers: {
           "Content-Type": "application/json"
-        }
+        },
+        timeout: 3500
       });
       
-      return response.data.choices[0].message.content;
+      if (response.data?.choices?.[0]?.message?.content) {
+        return response.data.choices[0].message.content;
+      }
     } catch (error) {
-      console.error("Local LLM request failed:", error.message);
-      throw error;
+      console.warn("Local LLM request offline or failed, falling back to Gemini:", error.message);
     }
-  } else {
-    // Fallback to Gemini
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
   }
+
+  // Fallback to Gemini with active model cascade
+  const modelCandidates = ["gemini-flash-latest", "gemini-3.7-flash", "gemini-3.6-flash"];
+  let lastErr = null;
+  for (const m of modelCandidates) {
+    try {
+      const model = genAI.getGenerativeModel({ model: m });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+
+  throw lastErr || new Error("All AI generation providers failed.");
 };
 
 module.exports = { callAI };

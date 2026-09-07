@@ -5,13 +5,16 @@ const {
   submitAnswer,
   completeInterview,
   getInterviewHistory,
+  getProjectDeepDive,
 } = require("../controllers/interviewController");
 
 const router = express.Router();
 
 router.post("/start", authenticateToken, startInterview);
 router.post("/submit-answer", authenticateToken, submitAnswer);
+router.post("/project-deep-dive", authenticateToken, getProjectDeepDive);
 router.post("/:interviewId/complete", authenticateToken, completeInterview);
 router.get("/history", authenticateToken, getInterviewHistory);
 
 module.exports = router;
+

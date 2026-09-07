@@ -1,4 +1,4 @@
-## EvolveAI - AI Interview + Placement Prep Coach 🧠
+## MindMirror - AI Interview + Placement Prep Coach 🧠
 
 A comprehensive AI-powered platform that helps candidates ace interviews and land jobs. Featuring resume analysis, AI-powered interview simulations, voice/confidence analysis, real-time performance tracking, and DSA weakness mapping.
 

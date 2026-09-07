@@ -269,9 +269,87 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
+// Get Candidate Memory & AI Context
+const getCandidateMemory = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const mongoConnected = await isMongoDBConnected();
+
+    if (mongoConnected) {
+      const user = await User.findById(userId).select("name email targetRole targetCompanies targetDays skills candidateMemory readinessBreakdown");
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      return res.json({
+        success: true,
+        candidateMemory: {
+          name: user.name,
+          targetRole: user.targetRole,
+          targetCompanies: user.targetCompanies || ["Google", "Amazon", "TCS"],
+          targetDays: user.targetDays || 21,
+          skills: user.skills || [],
+          weakDSATopics: user.candidateMemory?.weakDSATopics || [],
+          projectHighlights: user.candidateMemory?.projectHighlights || [],
+          speechMetrics: user.candidateMemory?.speechMetrics || { baselineWpm: 130, fillerWordRatio: 0.05, confidenceAvg: 75 },
+          recurringMistakes: user.candidateMemory?.recurringMistakes || [],
+          lastInterviewerFeedback: user.candidateMemory?.lastInterviewerFeedback || "",
+          readinessBreakdown: user.readinessBreakdown || {
+            technical: 65, dsa: 60, resume: 70, communication: 68, projects: 65, behavioral: 70, overall: 66,
+            lastDeltaExplanation: "Profile active and tracking."
+          }
+        }
+      });
+    } else {
+      return res.json({
+        success: true,
+        candidateMemory: {
+          name: "Demo Candidate",
+          targetRole: "Full-Stack",
+          targetCompanies: ["Google", "Amazon", "TCS"],
+          targetDays: 21,
+          skills: ["JavaScript", "React", "Node.js", "MongoDB", "Data Structures"],
+          weakDSATopics: [{ topic: "Graph Algorithms", frequency: 2, lastTestedScore: 50 }],
+          projectHighlights: [{ title: "E-Commerce Microservices", techStack: ["Node.js", "Docker", "MongoDB"], keyChallenges: "Handling flash sale throughput" }],
+          speechMetrics: { baselineWpm: 135, fillerWordRatio: 0.04, confidenceAvg: 78 },
+          recurringMistakes: ["Forgot to state time complexity upfront"],
+          lastInterviewerFeedback: "Good technical explanation, improve STAR story metrics.",
+          readinessBreakdown: { technical: 72, dsa: 68, resume: 78, communication: 75, projects: 70, behavioral: 74, overall: 73, lastDeltaExplanation: "Strong performance across full-stack rounds." }
+        }
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update Candidate Memory (Target Companies, Projects, etc.)
+const updateCandidateMemory = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { targetCompanies, targetDays, projectHighlights, speechMetrics } = req.body;
+    const mongoConnected = await isMongoDBConnected();
+
+    if (mongoConnected) {
+      const updatePayload = { updatedAt: new Date() };
+      if (targetCompanies) updatePayload.targetCompanies = targetCompanies;
+      if (targetDays) updatePayload.targetDays = targetDays;
+      if (projectHighlights) updatePayload["candidateMemory.projectHighlights"] = projectHighlights;
+      if (speechMetrics) updatePayload["candidateMemory.speechMetrics"] = speechMetrics;
+
+      const user = await User.findByIdAndUpdate(userId, { $set: updatePayload }, { new: true });
+      return res.json({ success: true, message: "Candidate memory updated", user });
+    } else {
+      return res.json({ success: true, message: "Candidate memory updated (Demo Mode)" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getUserProfile,
   updateUserProfile,
+  getCandidateMemory,
+  updateCandidateMemory,
 };

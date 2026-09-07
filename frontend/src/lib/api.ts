@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
 interface ApiOptions {
     method?: string;
@@ -11,7 +11,7 @@ interface ApiOptions {
 
 class ApiClient {
     private getToken(): string | undefined {
-        return Cookies.get('evolveai_token');
+        return Cookies.get('mindmirror_token') || Cookies.get('evolveai_token');
     }
 
     private getHeaders(isFormData = false): Record<string, string> {
@@ -131,6 +131,59 @@ class ApiClient {
         });
     }
 
+    // Candidate Memory & AI Context
+    async getCandidateMemory() {
+        return this.request('/auth/candidate-memory');
+    }
+
+    async updateCandidateMemory(data: Record<string, unknown>) {
+        return this.request('/auth/candidate-memory', {
+            method: 'PUT',
+            body: data,
+        });
+    }
+
+    // Placement Roadmap
+    async getRoadmap() {
+        return this.request('/roadmap');
+    }
+
+    async generateRoadmap(data: { targetRole?: string; targetCompany?: string; targetDays?: number }) {
+        return this.request('/roadmap/generate', {
+            method: 'POST',
+            body: data,
+        });
+    }
+
+    async toggleRoadmapTask(day: number) {
+        return this.request('/roadmap/toggle-task', {
+            method: 'PUT',
+            body: { day },
+        });
+    }
+
+    // Company Prep
+    async getCompanyList() {
+        return this.request('/company/list');
+    }
+
+    async getCompanyPack(companyName: string, role?: string, experienceLevel?: string) {
+        const query = new URLSearchParams({
+            companyName,
+            ...(role && { role }),
+            ...(experienceLevel && { experienceLevel }),
+        }).toString();
+        return this.request(`/company/pack?${query}`);
+    }
+
+    // Project Deep Dive
+    async getProjectDeepDive(title: string, description: string, techStack: string[]) {
+        return this.request('/interview/project-deep-dive', {
+            method: 'POST',
+            body: { title, description, techStack },
+        });
+    }
+
     // Dashboard
     async getDashboard() {
         return this.request('/dashboard');
@@ -149,3 +202,4 @@ class ApiClient {
 
 export const api = new ApiClient();
 export default api;
+

@@ -1,7 +1,7 @@
 {
-  "name": "evolveai-backend",
+  "name": "mindmirror-backend",
   "version": "3.0.0",
-  "description": "EvolveAI - AI Interview + Placement Prep Coach Backend",
+  "description": "MindMirror - AI Interview + Placement Prep Coach Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -14,7 +14,7 @@
     "ai",
     "coaching"
   ],
-  "author": "HireMind",
+  "author": "MindMirror",
   "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.23.0",

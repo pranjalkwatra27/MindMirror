@@ -37,6 +37,8 @@ const interviewRoutes = require("./routes/interviewRoutes");
 const voiceRoutes = require("./routes/voiceRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const dsaRoutes = require("./routes/dsaRoutes");
+const roadmapRoutes = require("./routes/roadmapRoutes");
+const companyRoutes = require("./routes/companyRoutes");
 
 // API Routes
 app.use("/api/auth", authRoutes);
@@ -45,11 +47,14 @@ app.use("/api/interview", interviewRoutes);
 app.use("/api/voice", voiceRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/dsa", dsaRoutes);
+app.use("/api/roadmap", roadmapRoutes);
+app.use("/api/company", companyRoutes);
+
 
 // Health check
 app.get("/api/health", (req, res) => {
   res.json({
-    status: "EvolveAI Backend is running",
+    status: "MindMirror Backend is running",
     timestamp: new Date(),
     version: "3.0.0",
     database: "MongoDB configured"
@@ -70,16 +75,24 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5001;
 
-// Start Server
-app.listen(PORT, () => {
+// Start Server with Port Conflict Protection
+const server = app.listen(PORT, () => {
   console.log(`
-🚀 EvolveAI Backend Server Started
+🚀 MindMirror Backend Server Started
 🌐 URL: http://localhost:${PORT}
-📊 API: /api/auth, /api/interview, /api/voice, /api/dashboard, /api/dsa
-❤️  Health: /api/health
+📊 API Modules: /api/auth, /api/interview, /api/voice, /api/dashboard, /api/dsa, /api/roadmap, /api/company
+❤️  Health Check: http://localhost:${PORT}/api/health
   `);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`⚠️ Port ${PORT} is already in use by another process. Please kill running node processes or update PORT in backend/.env`);
+  } else {
+    console.error('Server error:', err);
+  }
 });
 
 module.exports = app;

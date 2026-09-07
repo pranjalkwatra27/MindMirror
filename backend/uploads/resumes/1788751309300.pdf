@@ -1,0 +1,36 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 200 >>
+stream
+BT
+/F1 12 Tf
+50 720 Td
+(ALEX RIVERA - FULL STACK DEVELOPER | alex@example.com | github.com/alexrivera | linkedin.com/in/alexrivera. SKILLS: React, Next.js, Node.js, Express, TypeScript, PostgreSQL, MongoDB, Redis, Docker, Git. EXPERIENCE: Software Engineer at Apex Tech  2023-Present  - Engineered microservice API in Node.js and Express handling 15k requests/minute. Reduced database query latency by 35% with Redis caching. Built responsive Next.js frontend with Tailwind CSS. PROJECTS: CloudFlow - Distributed workflow orchestrator with Docker and Kafka. Evaluated by 1200+ developer stars on GitHub.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000010 00000 n 
+0000000060 00000 n 
+0000000117 00000 n 
+0000000234 00000 n 
+0000000486 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+560
+%%EOF

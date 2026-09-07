@@ -200,21 +200,420 @@ Return valid JSON only.`;
   }
 };
 
-// Generate placement readiness assessment
-const generatePlacementReadiness = async (userMetrics) => {
+// Generate Advanced Day-by-Day Adaptive Roadmap
+const generateRoadmapPlan = async ({
+  targetRole = "Full-Stack Developer",
+  targetCompany = "Top Tech",
+  targetDays = 21,
+  currentReadiness = 65,
+  skills = [],
+  weakTopics = [],
+  experienceYears = 0
+}) => {
   try {
-    const prompt = `Based on these interview metrics, generate a placement readiness score:
+    const prompt = `Create a realistic, dynamic, day-by-day placement preparation roadmap for a candidate:
+Target Role: ${targetRole}
+Target Company: ${targetCompany}
+Days Remaining: ${targetDays} days
+Current Readiness: ${currentReadiness}%
+Known Skills: ${skills.join(", ") || "Web development fundamentals, Data Structures"}
+Weak Areas needing revision: ${weakTopics.map(w => typeof w === 'string' ? w : w.topic).join(", ") || "Graph algorithms, System Design scaling, Behavioral STAR structure"}
+Experience: ${experienceYears} years
 
-Metrics:
-- Average Confidence: ${userMetrics.avgConfidence}%
-- Average Clarity: ${userMetrics.avgClarity}%
-- Technical Accuracy: ${userMetrics.techAccuracy}%
-- Total Interviews: ${userMetrics.totalInterviews}
-- Weak Areas: ${userMetrics.weakAreas.join(", ")}
+Generate a ${Math.min(targetDays, 30)}-day roadmap with structured daily tasks covering DSA, System Design/Technical depth, Project Deep Dives, Mock Interviews, and Behavioral revision.
+
+Return ONLY a JSON array of days matching this structure:
+[
+  {
+    "day": 1,
+    "title": "Topic or Milestone Title",
+    "category": "DSA" | "Technical" | "Project Deep Dive" | "Mock Interview" | "Behavioral" | "System Design" | "Resume Refinement",
+    "task": "Concrete task (e.g., Solve 2 LeetCode Two Pointers problems + revise Arrays)",
+    "description": "Short explanation of why this is important for ${targetCompany} and key concepts to master.",
+    "resources": [
+      {
+        "title": "Resource Name",
+        "url": "https://leetcode.com or https://developer.mozilla.org",
+        "type": "practice" | "video" | "article"
+      }
+    ]
+  }
+]
+
+Return valid JSON array only.`;
+
+    const text = await callAI(prompt);
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+    throw new Error("Invalid roadmap JSON");
+  } catch (error) {
+    console.warn("AI Service generateRoadmapPlan failed, using intelligent default generator.", error.message);
+    const days = Math.min(targetDays || 21, 30);
+    const generated = [];
+    const categories = ["DSA", "Technical", "Project Deep Dive", "Mock Interview", "Behavioral", "System Design"];
+    
+    for (let i = 1; i <= days; i++) {
+      let cat = categories[(i - 1) % categories.length];
+      if (i === 1) cat = "DSA";
+      if (i === days) cat = "Mock Interview";
+
+      let taskTitle = "";
+      let taskDesc = "";
+      let taskDetail = "";
+      let resList = [{ title: `${targetCompany} Prep Guide`, url: "https://leetcode.com", type: "practice" }];
+
+      switch (cat) {
+        case "DSA":
+          taskTitle = `Master ${weakTopics[0]?.topic || "Arrays & Hashing"} + 2 Practice Problems`;
+          taskDetail = "Solve 2 LeetCode problems (1 Medium, 1 Easy) focusing on optimal time & space complexity.";
+          taskDesc = "Focus on space-time trade-offs and edge cases commonly asked in online assessments.";
+          resList = [
+            { title: "LeetCode Top 75 DSA", url: "https://leetcode.com/problemset/all/", type: "practice" },
+            { title: "Visualgo Algorithm Visualizer", url: "https://visualgo.net", type: "article" }
+          ];
+          break;
+        case "Technical":
+          taskTitle = `${targetRole} Core Architecture & Asynchronous Patterns`;
+          taskDetail = "Revise closures, event loop, API caching, and database indexing mechanisms.";
+          taskDesc = "Ensure you can explain internal workings, not just surface-level syntax.";
+          resList = [{ title: "MDN Web Engineering Docs", url: "https://developer.mozilla.org", type: "article" }];
+          break;
+        case "Project Deep Dive":
+          taskTitle = "Project Cross-Examination & Architecture Justification";
+          taskDetail = "Formulate 5 deep-dive technical questions about your flagship project architecture.";
+          taskDesc = "Practice explaining trade-offs: why this database? How would you handle 10x traffic?";
+          break;
+        case "Mock Interview":
+          taskTitle = `Full AI Mock Interview Simulation for ${targetCompany}`;
+          taskDetail = `Complete a 5-question ${cat} session on MindMirror and review your STAR scores.`;
+          taskDesc = "Maintain vocal clarity, limit filler words, and keep responses under 2 minutes.";
+          break;
+        case "Behavioral":
+          taskTitle = "STAR Method Stories (Leadership, Conflict, Failure)";
+          taskDetail = "Write out 3 structured STAR stories highlighting measurable business or technical impact.";
+          taskDesc = "Situation, Task, Action (what you specifically did), Result (quantified metrics).";
+          break;
+        default:
+          taskTitle = "High-Level System Design & Scaling Principles";
+          taskDetail = "Study load balancing, database sharding, caching strategies (Redis/CDN).";
+          taskDesc = "Key foundation for tech rounds at top product companies.";
+      }
+
+      generated.push({
+        day: i,
+        title: taskTitle,
+        category: cat,
+        task: taskDetail,
+        description: taskDesc,
+        completed: false,
+        resources: resList
+      });
+    }
+    return generated;
+  }
+};
+
+// Generate Conversational Follow-Up Questions (AI Memory + Dynamic Context)
+const generateFollowUpQuestion = async ({
+  previousQuestion,
+  candidateAnswer,
+  candidateMemory = {},
+  mode = "Technical",
+  currentDifficulty = "Medium"
+}) => {
+  try {
+    const prompt = `You are a strict yet constructive senior tech interviewer at a top company.
+The candidate just answered your question:
+
+Previous Question: "${previousQuestion}"
+Candidate Answer: "${candidateAnswer}"
+Interview Mode: ${mode}
+Current Difficulty: ${currentDifficulty}
+Candidate Weak Areas / Background: ${JSON.stringify(candidateMemory?.weakDSATopics || [])}
+
+Generate an intelligent follow-up question that:
+1. Drills into specific details they mentioned (e.g. choice of tools, architecture, time complexity, or edge cases).
+2. Challenges their assumptions or asks what happens if constraints change (e.g. 100x traffic, distributed systems, memory limits).
+3. If they gave a vague answer, asks for a concrete example or code structure.
+
+Return ONLY a JSON object:
+{
+  "followUpQuestion": "The direct question text",
+  "category": "Deep Dive / Architecture / Edge Case / Behavioral Probing",
+  "difficulty": "Easy" | "Medium" | "Hard",
+  "rationale": "Why the interviewer asked this follow up based on their answer",
+  "tips": ["Tip 1", "Tip 2"]
+}
+
+Return valid JSON only.`;
+
+    const text = await callAI(prompt);
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+    throw new Error("Invalid follow-up JSON");
+  } catch (error) {
+    console.warn("AI Service generateFollowUpQuestion fallback.", error.message);
+    const words = candidateAnswer.toLowerCase();
+    let followUp = "Can you walk me through the trade-offs of that approach versus an alternative solution?";
+    if (words.includes("database") || words.includes("sql") || words.includes("mongo")) {
+      followUp = "You mentioned data persistence. How would your schema and indexing handle sudden query spikes?";
+    } else if (words.includes("react") || words.includes("frontend") || words.includes("api")) {
+      followUp = "How would you optimize the rendering performance and state management in this scenario?";
+    } else if (mode === "Behavioral") {
+      followUp = "What was the single biggest obstacle you personally overcame in that situation, and what would you do differently today?";
+    }
+
+    return {
+      followUpQuestion: followUp,
+      category: "Architecture & Trade-offs",
+      difficulty: "Medium",
+      rationale: "Probing deeper into architectural justifications and alternatives.",
+      tips: ["Structure your answer with clear trade-offs (Pros vs Cons)", "Cite real-world performance metrics if possible"]
+    };
+  }
+};
+
+// Evaluate Answer with STAR & Multi-dimensional Quality Metrics
+const evaluateAnswerWithSTAR = async (question, userAnswer, mode = "Technical") => {
+  try {
+    const prompt = `Evaluate this interview response with granular multi-dimensional scoring:
+
+Question: "${question}"
+Candidate Answer: "${userAnswer}"
+Mode: ${mode}
+
+Evaluate across:
+1. Relevance (0-100): Did they directly answer the core prompt?
+2. Structure (0-100): Did they use clear structure (e.g. STAR: Situation, Task, Action, Result)?
+3. Technical Depth (0-100): Concrete technical accuracy, trade-offs, terminology.
+4. Confidence (0-100): Assertive, decisive, lack of hesitation.
+5. Conciseness (0-100): Direct without rambling.
+
+Return ONLY a JSON object:
+{
+  "overallScore": number,
+  "dimensions": {
+    "relevance": number,
+    "structure": number,
+    "technicalDepth": number,
+    "confidence": number,
+    "conciseness": number
+  },
+  "starChecklist": {
+    "answeredQuestion": boolean,
+    "gaveConcreteExample": boolean,
+    "explainedReasoning": boolean,
+    "mentionedMeasurableImpact": boolean,
+    "structuredWell": boolean
+  },
+  "strengths": ["strength1", "strength2"],
+  "areasForImprovement": ["area1", "area2"],
+  "idealAnswerSnippet": "A 2-3 sentence example of how an exemplary candidate would formulate this answer",
+  "feedback": "Constructive 2-3 sentence coaching summary"
+}
+
+Return valid JSON only.`;
+
+    const text = await callAI(prompt);
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+    throw new Error("Invalid STAR evaluation JSON");
+  } catch (error) {
+    console.warn("AI Service evaluateAnswerWithSTAR fallback.", error.message);
+    const words = (userAnswer || "").trim().split(/\s+/).filter(Boolean);
+    const len = words.length;
+    const hasNumbers = /\d+/.test(userAnswer);
+    const hasTechnicalTerms = /(api|database|react|node|algorithm|complexity|scale|performance|cache|component)/i.test(userAnswer);
+
+    const relevance = Math.min(95, Math.max(50, len > 15 ? 80 : 55));
+    const structure = Math.min(90, Math.max(45, len > 40 ? 82 : 60));
+    const technicalDepth = hasTechnicalTerms ? 85 : 62;
+    const confidence = Math.min(92, Math.max(55, 75 + (len > 30 ? 10 : 0)));
+    const conciseness = len > 150 ? 55 : (len > 25 ? 85 : 70);
+
+    const overall = Math.round((relevance * 0.25) + (structure * 0.2) + (technicalDepth * 0.25) + (confidence * 0.15) + (conciseness * 0.15));
+
+    return {
+      overallScore: overall,
+      dimensions: {
+        relevance,
+        structure,
+        technicalDepth,
+        confidence,
+        conciseness
+      },
+      starChecklist: {
+        answeredQuestion: len > 10,
+        gaveConcreteExample: len > 35,
+        explainedReasoning: len > 20,
+        mentionedMeasurableImpact: hasNumbers,
+        structuredWell: len > 30
+      },
+      strengths: [
+        len > 30 ? "Good descriptive depth and practical terminology" : "Direct response approach",
+        hasTechnicalTerms ? "Used relevant engineering concepts" : "Clear communication flow"
+      ],
+      areasForImprovement: [
+        !hasNumbers ? "Quantify your achievements with numbers, % improvements, or latency metrics" : "Structure with STAR format (Situation -> Task -> Action -> Result)",
+        len < 25 ? "Provide more context and explain your reasoning steps" : "Ensure you summarize the bottom-line outcome clearly"
+      ],
+      idealAnswerSnippet: "When building our service, we identified a 300ms bottleneck in query latency. I redesigned our caching tier using Redis with LRU eviction, which reduced response times by 65% across 50k daily active users.",
+      feedback: `Solid attempt with an overall score of ${overall}%. Focus on highlighting measurable results and concrete architectural choices.`
+    };
+  }
+};
+
+// Generate Company-Specific Preparation Packs
+const generateCompanyPrepPack = async (companyName = "Google", role = "Software Engineer", experienceLevel = "Fresher") => {
+  try {
+    const prompt = `Generate a comprehensive, company-specific interview preparation pack for:
+Company: ${companyName}
+Target Role: ${role}
+Experience: ${experienceLevel}
+
+Include:
+1. Expected interview rounds (e.g. OA, DSA, System Design, Leadership/Googliness/Bar Raiser)
+2. Most tested DSA topics & difficulty breakdown
+3. Top 5 company-specific technical & behavioral questions
+4. Resume keywords preferred by their ATS
+5. Culture principles and key interview tips
+
+Return ONLY a JSON object:
+{
+  "company": "${companyName}",
+  "role": "${role}",
+  "difficultyLevel": "Medium-Hard",
+  "hiringBarDescription": "Brief summary of their interview philosophy",
+  "rounds": [
+    {
+      "roundNumber": 1,
+      "title": "Online Assessment (OA)",
+      "focus": "DSA & Problem Solving",
+      "duration": "60-90 mins",
+      "topics": ["Arrays", "Graphs", "Dynamic Programming"]
+    }
+  ],
+  "dsaTopicWeightage": [
+    { "topic": "Dynamic Programming", "weightage": 30, "difficulty": "Medium-Hard" },
+    { "topic": "Trees & Graphs", "weightage": 30, "difficulty": "Medium" },
+    { "topic": "Arrays & Strings", "weightage": 25, "difficulty": "Medium" },
+    { "topic": "System Design Basics", "weightage": 15, "difficulty": "Medium" }
+  ],
+  "curatedQuestions": [
+    {
+      "type": "Technical",
+      "question": "Question text",
+      "importance": "High",
+      "tips": "What the interviewer looks for"
+    }
+  ],
+  "resumeKeywords": ["Distributed Systems", "Cloud", "Clean Architecture", "Microservices"],
+  "culturePrinciples": ["Customer Obsession / Leadership Principles / Innovation"]
+}
+
+Return valid JSON only.`;
+
+    const text = await callAI(prompt);
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+    throw new Error("Invalid company prep pack JSON");
+  } catch (error) {
+    console.warn("AI Service generateCompanyPrepPack fallback.", error.message);
+    return {
+      company: companyName,
+      role: role,
+      difficultyLevel: companyName.toLowerCase().includes("google") || companyName.toLowerCase().includes("amazon") ? "Hard" : "Medium",
+      hiringBarDescription: `${companyName} focuses heavily on structured problem solving, clean code quality, scalability mindset, and cultural alignment.`,
+      rounds: [
+        { roundNumber: 1, title: "Online Coding Assessment", focus: "DSA & Algorithmic Puzzles", duration: "75 mins", topics: ["Arrays", "Strings", "Prefix Sums"] },
+        { roundNumber: 2, title: "Technical Round 1 (DSA & Core)", focus: "Trees, Graphs, Recursion", duration: "45-60 mins", topics: ["DFS/BFS", "Binary Trees", "HashMaps"] },
+        { roundNumber: 3, title: "Technical Round 2 (System & Projects)", focus: "Project Deep Dive & Architecture", duration: "45-60 mins", topics: ["REST APIs", "Database Schema", "Caching"] },
+        { roundNumber: 4, title: "HR & Behavioral Round", focus: "Culture Fit & STAR Questions", duration: "30-45 mins", topics: ["Leadership", "Team Conflict", "Ownership"] }
+      ],
+      dsaTopicWeightage: [
+        { topic: "Arrays & Strings", weightage: 30, difficulty: "Medium" },
+        { topic: "Trees & Graphs", weightage: 30, difficulty: "Medium-Hard" },
+        { topic: "Dynamic Programming", weightage: 20, difficulty: "Medium-Hard" },
+        { topic: "Hash Tables & Stacks", weightage: 20, difficulty: "Medium" }
+      ],
+      curatedQuestions: [
+        { type: "Technical", question: `Design an efficient LRU Cache or Rate Limiter in your preferred language.`, importance: "High", tips: "Discuss hash map + doubly linked list trade-offs and thread safety." },
+        { type: "Technical", question: `How would you diagnose and fix a slow query or memory leak in production?`, importance: "High", tips: "Mention profiling tools, query execution plans (EXPLAIN), and heap dumps." },
+        { type: "Behavioral", question: `Tell me about a time you disagreed with a technical decision made by a team member.`, importance: "Very High", tips: "Focus on data-backed discussions, respectful dissent, and committed alignment." }
+      ],
+      resumeKeywords: ["High Availability", "REST APIs", "Unit Testing", "CI/CD", "Data Structures", "Docker", "Database Optimization"],
+      culturePrinciples: ["Customer Focus", "Deliver Results", "Invent & Simplify", "Ownership"]
+    };
+  }
+};
+
+// Generate Project Deep Dive Questions
+const generateProjectDeepDiveQuestions = async (projectTitle = "Flagship Project", description = "", techStack = []) => {
+  try {
+    const prompt = `Generate 5 deep-dive technical cross-examination questions for a candidate's resume project:
+Project Title: ${projectTitle}
+Description: ${description}
+Tech Stack: ${techStack.join(", ")}
+
+Generate questions in these 5 categories:
+1. Basic Architectural Choice (Why this stack?)
+2. Technical Mechanics (How does your core feature work under the hood?)
+3. 10x Scale & Stress Test (What breaks if users grow by 100x?)
+4. Cross-Questioning (Why didn't you use alternative technology X?)
+5. Failure & Bottleneck (What was the biggest bug or technical failure?)
+
+Return ONLY a JSON array:
+[
+  {
+    "category": "Basic / Technical / Scale / Cross-Question / Failure",
+    "question": "Question text",
+    "expectedAnswerKeyPoints": ["Point 1", "Point 2"],
+    "tips": "Interviewer advice"
+  }
+]
+
+Return valid JSON only.`;
+
+    const text = await callAI(prompt);
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+    throw new Error("Invalid project questions JSON");
+  } catch (error) {
+    console.warn("AI Service generateProjectDeepDiveQuestions fallback.", error.message);
+    return [
+      { category: "Basic", question: `Why did you choose ${techStack[0] || 'Node.js/React'} for ${projectTitle} over other modern frameworks?`, expectedAnswerKeyPoints: ["Ecosystem", "Developer productivity", "Performance benchmarks"], tips: "State concrete trade-offs, not just 'it was easy to learn'." },
+      { category: "Cross-Question", question: `Why did you choose your current persistence layer instead of an event-driven or in-memory architecture?`, expectedAnswerKeyPoints: ["Data consistency", "Query flexibility", "Cost efficiency"], tips: "Acknowledge when the alternative could be better." },
+      { category: "Failure", question: `What was the most challenging technical roadblock you encountered while building ${projectTitle}, and how did you resolve it?`, expectedAnswerKeyPoints: ["Root cause analysis", "Debugging steps", "Post-mortem prevention"], tips: "Own the problem and highlight what you learned." }
+    ];
+  }
+};
+
+// Generate Placement Readiness Breakdown
+const generatePlacementReadiness = async (metrics = {}) => {
+  try {
+    const prompt = `Based on candidate's performance metrics:
+${JSON.stringify(metrics, null, 2)}
+
+Generate a detailed Placement Readiness Assessment with:
+1. Overall placement readiness score (0-100)
+2. Breakdown scores: technicalScore, communicationScore, behavioralScore, dsaScore (0-100)
+3. Strengths and top areas of improvement
+4. Role prediction readiness (e.g. "Ready for Entry Level", "Ready for Mid-Level", "Needs Improvement")
+5. Actionable preparation recommendations
 
 Return JSON format ONLY:
 {
-  "placementReadinessScore": number (0-100),
+  "placementReadinessScore": number,
   "breakdown": {
     "technicalScore": number,
     "communicationScore": number,
@@ -222,40 +621,44 @@ Return JSON format ONLY:
     "dsaScore": number
   },
   "strengths": ["strength1", "strength2"],
-  "criticalGaps": ["gap1", "gap2"],
-  "recommendedNextSteps": ["step1", "step2"],
-  "estimatedReadyDate": "timeframe description"
+  "weaknesses": ["weakness1", "weakness2"],
+  "recommendations": ["rec1", "rec2"],
+  "predictedRoleReadiness": "string"
 }
 
 Return valid JSON only.`;
 
     const text = await callAI(prompt);
-
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }
-    throw new Error("Invalid response format");
+    throw new Error("Invalid placement readiness JSON");
   } catch (error) {
-    console.warn("AI Service generatePlacementReadiness failed, using local fallback.", error.message);
-    const avgConfidence = Number(userMetrics.avgConfidence) || 70;
-    const avgClarity = Number(userMetrics.avgClarity) || 70;
-    const techAccuracy = Number(userMetrics.techAccuracy) || 65;
-    
-    const calculatedScore = Math.round((avgConfidence * 0.3) + (avgClarity * 0.3) + (techAccuracy * 0.4));
-    
+    console.warn("AI Service generatePlacementReadiness fallback.", error.message);
+    const conf = metrics.avgConfidence || metrics.confidenceScore || 70;
+    const clar = metrics.avgClarity || metrics.clarityScore || 72;
+    const tech = metrics.techAccuracy || 70;
+    const dsa = 68;
+    const behavioral = Math.round((conf + clar) / 2);
+    const overall = Math.round((tech * 0.35) + (dsa * 0.25) + (clar * 0.2) + (conf * 0.2));
+
     return {
-      placementReadinessScore: calculatedScore,
+      placementReadinessScore: Math.min(100, Math.max(20, overall)),
       breakdown: {
-        technicalScore: Math.round(techAccuracy),
-        communicationScore: Math.round((avgConfidence + avgClarity) / 2),
-        behavioralScore: Math.round(avgConfidence * 0.95),
-        dsaScore: Math.round(techAccuracy * 0.9)
+        technicalScore: Math.min(100, Math.max(30, Math.round(tech))),
+        communicationScore: Math.min(100, Math.max(30, Math.round(clar))),
+        behavioralScore: Math.min(100, Math.max(30, Math.round(behavioral))),
+        dsaScore: Math.min(100, Math.max(30, Math.round(dsa)))
       },
-      strengths: ["Clear response articulation", "Good presence of core technical terminology"],
-      criticalGaps: ["Could improve structural responses in behavioral scenarios", "Revisit complex graph and dynamic programming questions"],
-      recommendedNextSteps: ["Complete 3 more Mock Interviews", "Take the DSA Arrays and Strings quiz", "Optimize resume with quantitative impact metrics"],
-      estimatedReadyDate: "1-2 weeks of consistent preparation"
+      strengths: ["Clear communication flow", "Good foundational problem-solving approach"],
+      weaknesses: ["Deep-dive system design trade-offs", "Time management during coding rounds"],
+      recommendations: [
+        "Practice 2-3 medium LeetCode problems daily",
+        "Structure behavioral answers using the STAR method",
+        "Review asynchronous architecture and database indexing"
+      ],
+      predictedRoleReadiness: overall > 75 ? "Ready for SDE-1 / Associate Engineer Roles" : "Candidate for SDE Intern / Junior Engineer with Mentorship"
     };
   }
 };
@@ -263,6 +666,12 @@ Return valid JSON only.`;
 module.exports = {
   generateInterviewQuestions,
   evaluateAnswer,
+  evaluateAnswerWithSTAR,
+  generateFollowUpQuestion,
   generateDSAWeaknessList,
-  generatePlacementReadiness
+  generatePlacementReadiness,
+  generateRoadmapPlan,
+  generateCompanyPrepPack,
+  generateProjectDeepDiveQuestions
 };
+

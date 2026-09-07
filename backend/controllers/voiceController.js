@@ -58,12 +58,17 @@ const analyzeVoice = async (req, res) => {
 
           // Update user progress
           const user = await User.findById(userId);
-          user.progressMetrics.averageClarityScore =
-            (user.progressMetrics.averageClarityScore * (user.progressMetrics.totalInterviews - 1) +
-              voiceAnalysis.scores.clarity_score) /
-            user.progressMetrics.totalInterviews;
+          if (user) {
+            if (!user.progressMetrics) {
+              user.progressMetrics = { totalInterviews: 0, averageConfidenceScore: 0, averageClarityScore: 0, weakAreas: [], strongAreas: [], placementReadinessScore: 0 };
+            }
+            const count = Math.max(1, user.progressMetrics.totalInterviews || 1);
+            user.progressMetrics.averageClarityScore =
+              ((user.progressMetrics.averageClarityScore || 70) * (count - 1) +
+                voiceAnalysis.scores.clarity_score) / count;
 
-          await user.save();
+            await user.save();
+          }
         }
       }
 

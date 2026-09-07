@@ -1,7 +1,7 @@
 {
-  "name": "evolve-ai",
+  "name": "mindmirror",
   "version": "1.0.0",
-  "description": "EvolveAI root manager",
+  "description": "MindMirror root manager",
   "scripts": {
     "install:all": "npm install --prefix backend && npm install --prefix frontend",
     "dev:backend": "npm run dev --prefix backend",
