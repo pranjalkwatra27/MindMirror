@@ -325,15 +325,20 @@ const getCandidateMemory = async (req, res) => {
 const updateCandidateMemory = async (req, res) => {
   try {
     const userId = req.userId;
-    const { targetCompanies, targetDays, projectHighlights, speechMetrics } = req.body;
+    const { targetRole, targetCompanies, targetDays, projectHighlights, speechMetrics, candidateMemory } = req.body;
     const mongoConnected = await isMongoDBConnected();
 
     if (mongoConnected) {
       const updatePayload = { updatedAt: new Date() };
+      if (targetRole) updatePayload.targetRole = targetRole;
       if (targetCompanies) updatePayload.targetCompanies = targetCompanies;
       if (targetDays) updatePayload.targetDays = targetDays;
       if (projectHighlights) updatePayload["candidateMemory.projectHighlights"] = projectHighlights;
       if (speechMetrics) updatePayload["candidateMemory.speechMetrics"] = speechMetrics;
+      if (candidateMemory?.weakDSATopics) {
+        const formatted = candidateMemory.weakDSATopics.map(w => typeof w === 'string' ? { topic: w, frequency: 1 } : w);
+        updatePayload["candidateMemory.weakDSATopics"] = formatted;
+      }
 
       const user = await User.findByIdAndUpdate(userId, { $set: updatePayload }, { new: true });
       return res.json({ success: true, message: "Candidate memory updated", user });

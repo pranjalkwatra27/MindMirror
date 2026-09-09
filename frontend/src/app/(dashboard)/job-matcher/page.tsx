@@ -6,17 +6,13 @@ import api from '@/lib/api';
 import ScoreCircle from '@/components/ScoreCircle';
 import {
     HiOutlineCloudArrowUp,
-    HiOutlineDocumentText,
     HiOutlineCheckCircle,
     HiOutlineXCircle,
     HiOutlineSparkles,
-    HiOutlineCheck,
     HiOutlineLightBulb,
-    HiOutlineArrowRight,
     HiOutlineArrowPath,
     HiOutlineBriefcase,
     HiOutlineAcademicCap,
-    HiOutlineLink,
     HiOutlinePlay,
     HiOutlineCheckBadge,
     HiOutlineArrowTopRightOnSquare,

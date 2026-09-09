@@ -23,7 +23,6 @@ const userSchema = new mongoose.Schema({
   },
   targetRole: {
     type: String,
-    enum: ["Frontend", "Backend", "Full-Stack", "DevOps", "Data Science", "QA", "Other"],
     default: "Full-Stack",
   },
   yearsOfExperience: {

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import Logo from '@/components/Logo';
 import { HiOutlineEnvelope, HiOutlineLockClosed, HiOutlineUser, HiOutlineEye, HiOutlineEyeSlash, HiOutlineSparkles } from 'react-icons/hi2';
 
 export default function SignupPage() {
@@ -54,9 +55,7 @@ export default function SignupPage() {
                 <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-[100px]" />
 
                 <div className="relative z-10 max-w-lg space-y-6">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-cyan-500 flex items-center justify-center text-white font-extrabold text-2xl shadow-xl shadow-cyan-500/25 animate-float">
-                        M
-                    </div>
+                    <Logo size="xl" href="/" />
                     <div>
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-semibold tracking-wide mb-3">
                             <HiOutlineSparkles className="w-3.5 h-3.5" />
@@ -92,14 +91,8 @@ export default function SignupPage() {
             <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
                 <div className="w-full max-w-md space-y-6">
                     {/* Mobile branding */}
-                    <div className="lg:hidden flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white font-bold text-lg shadow-md">
-                            M
-                        </div>
-                        <div>
-                            <h1 className="text-lg font-bold text-white">MindMirror</h1>
-                            <p className="text-[10px] text-slate-400">AI Placement Mirror</p>
-                        </div>
+                    <div className="lg:hidden">
+                        <Logo size="md" href="/" />
                     </div>
 
                     <div className="space-y-1">

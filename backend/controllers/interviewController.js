@@ -1,18 +1,14 @@
 const Interview = require("../models/Interview");
 const User = require("../models/User");
-const Progress = require("../models/Progress");
-const { analyzeVoiceComplete } = require("../utils/voiceAnalysis");
 const DemoDatabase = require("../utils/demoDatabase");
 const {
   generateInterviewQuestions,
-  evaluateAnswer,
   evaluateAnswerWithSTAR,
   generateFollowUpQuestion,
   generateDSAWeaknessList,
   generateProjectDeepDiveQuestions,
 } = require("../utils/aiService");
 
-// Helper to check if using demo mode
 const isMongoDBConnected = async () => {
   try {
     const mongoose = require("mongoose");
@@ -149,18 +145,24 @@ const submitAnswer = async (req, res) => {
       const interview = await Interview.findById(interviewId);
       if (!interview) return res.status(404).json({ error: "Interview not found" });
 
-      if (questionIndex >= interview.questions.length) {
-        return res.status(400).json({ error: "Invalid question index" });
+      const qIdx = (typeof questionIndex === 'number' && !isNaN(questionIndex)) 
+        ? questionIndex 
+        : (req.body.questionIndex || 0);
+
+      if (qIdx >= interview.questions.length || !interview.questions[qIdx]) {
+        // If question doesn't exist by index, check by questionId or fallback to first
+        const found = interview.questions.find(q => q.questionId === req.body.questionId) || interview.questions[0];
+        if (!found) return res.status(400).json({ error: "No questions found for this interview" });
       }
 
-      const question = interview.questions[questionIndex];
+      const question = interview.questions[qIdx] || interview.questions[0];
       const user = await User.findById(userId);
 
       // Multi-dimensional STAR evaluation
       const starEval = await evaluateAnswerWithSTAR(
-        question.question,
-        userAnswer,
-        interview.mode
+        question.question || req.body.question || "Interview question",
+        userAnswer || "Candidate response",
+        interview.mode || "Technical"
       );
 
       question.userAnswer = userAnswer;
@@ -171,7 +173,7 @@ const submitAnswer = async (req, res) => {
       if (!interview.scores) interview.scores = {};
       const currentAvg = interview.scores.technicalAccuracy || 0;
       interview.scores.technicalAccuracy = Math.round(
-        (currentAvg * questionIndex + starEval.overallScore) / (questionIndex + 1)
+        (currentAvg * qIdx + (starEval.overallScore || 70)) / (qIdx + 1)
       );
 
       // Track weak categories

@@ -1,5 +1,4 @@
 const User = require("../models/User");
-const DemoDatabase = require("../utils/demoDatabase");
 const { generateRoadmapPlan } = require("../utils/aiService");
 
 const isMongoDBConnected = async () => {

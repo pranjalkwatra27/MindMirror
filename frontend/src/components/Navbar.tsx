@@ -17,8 +17,9 @@ import {
     HiOutlineMap,
     HiOutlineBuildingOffice2,
     HiOutlineUserCircle,
-    HiOutlineSparkles,
 } from 'react-icons/hi2';
+
+import Logo from '@/components/Logo';
 
 const navItems = [
     { label: 'Dashboard', href: '/dashboard', icon: HiOutlineHome, badge: null },
@@ -42,21 +43,11 @@ export default function Navbar() {
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className="hidden lg:flex flex-col fixed top-0 left-0 h-full w-64 bg-[#090d20]/95 backdrop-blur-2xl border-r border-white/[0.08] z-50 shadow-2xl">
-                {/* Brand Logo */}
+            <aside className="hidden lg:flex flex-col fixed top-0 left-0 h-full w-64 bg-[#080c1f]/95 backdrop-blur-2xl border-r border-white/[0.08] z-50 shadow-2xl">
+                {/* Brand Logo Header */}
                 <div className="p-5 border-b border-white/[0.08]">
-                    <Link href="/dashboard" className="flex items-center gap-3 group">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-cyan-500 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">
-                            M
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-1.5">
-                                <h1 className="text-white font-bold text-base tracking-tight group-hover:text-indigo-300 transition-colors">MindMirror</h1>
-                                <span className="px-1.5 py-0.2 rounded bg-indigo-500/20 text-[10px] font-semibold text-indigo-300 border border-indigo-500/30">AI</span>
-                            </div>
-                            <p className="text-[11px] text-slate-400 -mt-0.5">Placement & Interview Mirror</p>
-                        </div>
-                    </Link>
+                    <Logo size="md" href="/dashboard" />
+                    <p className="text-[11px] text-slate-400 mt-1.5 pl-0.5">Autonomous AI Career Mirror</p>
                 </div>
 
                 {/* Navigation Links */}
@@ -127,19 +118,11 @@ export default function Navbar() {
             </aside>
 
             {/* Mobile Header */}
-            <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#090d20]/95 backdrop-blur-2xl border-b border-white/[0.08] z-50 flex items-center justify-between px-4">
-                <Link href="/dashboard" className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                        M
-                    </div>
-                    <div>
-                        <h1 className="text-white font-bold text-sm">MindMirror</h1>
-                        <p className="text-[10px] text-slate-400">AI Placement Mirror</p>
-                    </div>
-                </Link>
+            <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#080c1f]/95 backdrop-blur-2xl border-b border-white/[0.08] z-50 flex items-center justify-between px-4">
+                <Logo size="sm" href="/dashboard" />
                 <button
                     onClick={() => setMobileOpen(!mobileOpen)}
-                    className="text-slate-300 hover:text-white p-2 rounded-lg bg-white/5 border border-white/10"
+                    className="text-slate-300 hover:text-white p-2 rounded-xl bg-white/5 border border-white/10"
                     aria-label="Toggle navigation menu"
                 >
                     {mobileOpen ? <HiOutlineXMark className="w-5 h-5" /> : <HiOutlineBars3 className="w-5 h-5" />}

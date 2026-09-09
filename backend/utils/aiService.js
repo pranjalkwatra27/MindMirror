@@ -663,6 +663,64 @@ Return valid JSON only.`;
   }
 };
 
+// Generate Dynamic DSA Multiple-Choice Questions using AI (Local LLM / Cloud Gemini)
+const generateDSAQuestionsAI = async ({ topic = "Mixed", difficulty = "Medium", count = 10, language = "General" }) => {
+  try {
+    const prompt = `Generate ${count} high-quality, authentic technical Data Structures & Algorithms multiple-choice questions (MCQs) for interview preparation.
+Topic: ${topic}
+Difficulty: ${difficulty}
+Language Context: ${language}
+
+For each question, provide:
+1. "id": unique string (e.g. "ai-dsa-1")
+2. "topic": topic category (e.g. Arrays, Linked List, Stacks, Trees, Dynamic Programming, Graphs, Sorting)
+3. "difficulty": "Easy" | "Medium" | "Hard"
+4. "company": FAANG/Top Tech company name (e.g. Google, Amazon, Meta, Microsoft, Apple, Uber, Netflix)
+5. "question": clear problem statement or complexity question
+6. "options": array of exactly 4 distinct string choices
+7. "answer": 0-indexed integer (0, 1, 2, or 3) indicating the correct option
+8. "explanation": detailed explanation covering optimal approach and time/space complexity analysis
+
+Return ONLY a valid JSON array of question objects matching this schema:
+[
+  {
+    "id": "ai-dsa-1",
+    "topic": "${topic === 'Mixed' ? 'Arrays' : topic}",
+    "difficulty": "${difficulty === 'Mixed' ? 'Medium' : difficulty}",
+    "company": "Google",
+    "question": "What is the optimal time complexity to find the median in a data stream of n integers?",
+    "options": ["O(n log n)", "O(log n) per insertion with two heaps", "O(1) insertion, O(n) median", "O(n) per insertion"],
+    "answer": 1,
+    "explanation": "Using a max-heap for lower half and min-heap for upper half achieves O(log n) insertion and O(1) median retrieval."
+  }
+]
+
+Return valid JSON array only, without markdown formatting or introductory text.`;
+
+    const text = await callAI(prompt);
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map((q, idx) => ({
+          id: q.id || `ai-${(topic || 'dsa').toLowerCase().replace(/\s+/g, '-')}-${idx + 1}-${Date.now()}`,
+          topic: q.topic || topic,
+          difficulty: q.difficulty || difficulty,
+          company: q.company || "Top Tech",
+          question: q.question,
+          options: Array.isArray(q.options) && q.options.length === 4 ? q.options : ["Option A", "Option B", "Option C", "Option D"],
+          answer: typeof q.answer === 'number' && q.answer >= 0 && q.answer < 4 ? q.answer : 0,
+          explanation: q.explanation || "Optimal solution time and space complexity breakdown."
+        }));
+      }
+    }
+    throw new Error("Invalid question format received from AI");
+  } catch (error) {
+    console.warn("generateDSAQuestionsAI fallback to curated question bank:", error.message);
+    return null;
+  }
+};
+
 module.exports = {
   generateInterviewQuestions,
   evaluateAnswer,
@@ -672,6 +730,8 @@ module.exports = {
   generatePlacementReadiness,
   generateRoadmapPlan,
   generateCompanyPrepPack,
-  generateProjectDeepDiveQuestions
+  generateProjectDeepDiveQuestions,
+  generateDSAQuestionsAI
 };
+
 

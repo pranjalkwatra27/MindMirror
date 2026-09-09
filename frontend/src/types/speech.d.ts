@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 interface SpeechRecognitionErrorEvent extends Event {
     readonly error: string;
     readonly message: string;

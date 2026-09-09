@@ -13,7 +13,7 @@ import {
     HiOutlineClock,
 } from 'react-icons/hi2';
 import Link from 'next/link';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 interface ReadinessBreakdown {
     technical: number;
@@ -180,7 +180,7 @@ export default function DashboardPage() {
                             <div className="flex items-center gap-2">
                                 <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
                                 <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-300">
-                                    AI Copilot • Today's Recommended Focus
+                                    AI Copilot • Today&apos;s Recommended Focus
                                 </span>
                             </div>
 
@@ -257,15 +257,21 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Actions Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {quickActions.map((action) => (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {quickActions.map((action, i) => (
                     <Link key={action.href} href={action.href}>
-                        <div className="glass-card rounded-2xl p-6 group cursor-pointer">
-                            <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-4 shadow-lg group-hover:scale-105 transition-transform`}>
-                                <action.icon className="w-5 h-5 text-white" />
+                        <div className={`p-6 rounded-3xl border border-white/[0.08] bg-[#0b1028]/80 hover:bg-[#0f1738] transition-all flex flex-col justify-between group ${i === 0 ? 'glow-card-indigo' : i === 1 ? 'glow-card' : 'glow-card-purple'}`}>
+                            <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-4 shadow-lg group-hover:scale-105 transition-transform`}>
+                                <action.icon className="w-6 h-6 text-white" />
                             </div>
-                            <h3 className="text-white font-semibold text-base mb-1 group-hover:text-indigo-300 transition-colors">{action.title}</h3>
-                            <p className="text-slate-400 text-xs leading-relaxed">{action.desc}</p>
+                            <div>
+                                <h3 className="text-white font-bold text-base mb-1 group-hover:text-cyan-300 transition-colors">{action.title}</h3>
+                                <p className="text-slate-400 text-xs leading-relaxed">{action.desc}</p>
+                            </div>
+                            <div className="mt-4 pt-3 border-t border-white/[0.05] flex items-center justify-between text-xs text-cyan-300 font-semibold">
+                                <span>Open Module</span>
+                                <span className="group-hover:translate-x-1 transition-transform">→</span>
+                            </div>
                         </div>
                     </Link>
                 ))}

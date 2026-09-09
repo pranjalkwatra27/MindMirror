@@ -142,6 +142,58 @@ body {
   font-feature-settings: "tnum" on, "lnum" on;
 }
 
+/* Premium Interactive Glow Cards */
+.glow-card {
+  position: relative;
+  background: rgba(11, 16, 36, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 1.5rem;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glow-card:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 35px -5px rgba(56, 189, 248, 0.2);
+  transform: translateY(-3px);
+}
+
+.glow-card-indigo:hover {
+  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 35px -5px rgba(99, 102, 241, 0.25);
+  transform: translateY(-3px);
+}
+
+.glow-card-purple:hover {
+  border-color: rgba(192, 132, 252, 0.45);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 35px -5px rgba(192, 132, 252, 0.25);
+  transform: translateY(-3px);
+}
+
+.glow-card-emerald:hover {
+  border-color: rgba(52, 211, 153, 0.45);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 35px -5px rgba(52, 211, 153, 0.25);
+  transform: translateY(-3px);
+}
+
+/* Dynamic Ambient Mesh Hero Background */
+.mesh-gradient-hero {
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 90% 15%, rgba(56, 189, 248, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 50% 60%, rgba(192, 132, 252, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 90%, rgba(52, 211, 153, 0.08) 0%, transparent 40%),
+    #050711;
+}
+
+/* Cyber Badges */
+.badge-cyber {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
 /* Skeleton Loading */
 .skeleton {
   background: linear-gradient(
@@ -153,22 +205,4 @@ body {
   background-size: 200% 100%;
   animation: shimmer 2s infinite linear;
   border-radius: 0.75rem;
-}
-
-
-/* Loading skeleton */
-@keyframes skeleton-loading {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.skeleton {
-  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-  background-size: 200% 100%;
-  animation: skeleton-loading 1.5s infinite;
-  border-radius: 8px;
 }

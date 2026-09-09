@@ -11,7 +11,6 @@ import {
     HiOutlineLightBulb,
     HiOutlineExclamationCircle,
     HiOutlinePuzzlePiece,
-    HiOutlineSparkles,
 } from 'react-icons/hi2';
 
 // ── Types ─────────────────────────────────────────────────────────────────────

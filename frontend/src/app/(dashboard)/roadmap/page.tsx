@@ -5,11 +5,9 @@ import api from '@/lib/api';
 import {
     HiOutlineMap,
     HiOutlineCheckCircle,
-    HiOutlineClock,
     HiOutlineSparkles,
     HiOutlineArrowPath,
     HiOutlineBuildingOffice2,
-    HiOutlineAcademicCap,
     HiOutlinePlay,
     HiOutlineArrowTopRightOnSquare,
     HiOutlineCalendarDays,
@@ -326,7 +324,7 @@ export default function RoadmapPage() {
                 {filteredRoadmap.length === 0 ? (
                     <div className="text-center py-16 text-slate-500">
                         <HiOutlineMap className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                        <p className="text-xs">No roadmap milestones found for "{filterCategory}".</p>
+                        <p className="text-xs">No roadmap milestones found for &ldquo;{filterCategory}&rdquo;.</p>
                     </div>
                 ) : (
                     filteredRoadmap.map((item) => {

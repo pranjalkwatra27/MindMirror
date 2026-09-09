@@ -12,7 +12,6 @@ import {
     HiOutlineSparkles,
     HiOutlineCheck,
     HiOutlineLightBulb,
-    HiOutlineArrowRight,
     HiOutlineArrowPath,
 } from 'react-icons/hi2';
 

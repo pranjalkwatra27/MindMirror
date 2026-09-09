@@ -419,6 +419,21 @@ export default function ProgressPage() {
                             </div>
                         ))}
                     </div>
+                ) : mcqTopicStats.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                        {mcqTopicStats.map((stat, i) => (
+                            <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                                <span className="text-slate-300 text-xs">{stat.topic}</span>
+                                <span className={`text-[11px] font-mono-metric px-2.5 py-0.5 rounded-full border ${
+                                    stat.score >= 70 ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25' :
+                                    stat.score >= 40 ? 'bg-amber-500/15 text-amber-300 border-amber-500/25' :
+                                    'bg-rose-500/15 text-rose-300 border-rose-500/25'
+                                }`}>
+                                    {stat.score}% ({stat.total} Qs)
+                                </span>
+                            </div>
+                        ))}
+                    </div>
                 ) : weakAreasList.length > 0 ? (
                     <div className="space-y-2">
                         {weakAreasList.map(([area, freq], i) => (

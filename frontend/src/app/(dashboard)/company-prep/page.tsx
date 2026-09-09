@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import {
     HiOutlineBuildingOffice2,
-    HiOutlineSparkles,
     HiOutlineBriefcase,
     HiOutlineTrophy,
     HiOutlinePuzzlePiece,
@@ -12,7 +11,6 @@ import {
     HiOutlineCheckBadge,
     HiOutlineTag,
     HiOutlinePlay,
-    HiOutlineArrowPath,
 } from 'react-icons/hi2';
 
 interface CompanySummary {
@@ -63,7 +61,6 @@ export default function CompanyPrepPage() {
     const [selectedRole, setSelectedRole] = useState('Software Engineer');
     const [customCompany, setCustomCompany] = useState('');
     const [pack, setPack] = useState<CompanyPack | null>(null);
-    const [loadingList, setLoadingList] = useState(true);
     const [loadingPack, setLoadingPack] = useState(false);
 
     useEffect(() => {
@@ -73,8 +70,6 @@ export default function CompanyPrepPage() {
                 setCompanies(res.companies || []);
             } catch (err) {
                 console.error('Failed to load companies:', err);
-            } finally {
-                setLoadingList(false);
             }
         };
         fetchList();
@@ -140,7 +135,10 @@ export default function CompanyPrepPage() {
                         return (
                             <button
                                 key={c.id}
-                                onClick={() => setSelectedCompany(c.name)}
+                                onClick={() => {
+                                    setSelectedCompany(c.name);
+                                    if (c.roles?.length) setSelectedRole(c.roles[0]);
+                                }}
                                 className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between space-y-3 ${
                                     isSelected
                                         ? 'bg-gradient-to-b from-indigo-950/70 to-indigo-900/30 border-indigo-500 shadow-lg shadow-indigo-500/15'
@@ -338,7 +336,7 @@ export default function CompanyPrepPage() {
                                             </span>
                                         </div>
                                         <p className="text-xs lg:text-sm font-medium text-slate-100 leading-relaxed">
-                                            "{q.question}"
+                                            &ldquo;{q.question}&rdquo;
                                         </p>
                                     </div>
 

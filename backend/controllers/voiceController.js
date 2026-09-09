@@ -1,10 +1,7 @@
 const Interview = require("../models/Interview");
 const User = require("../models/User");
-const Progress = require("../models/Progress");
-const DemoDatabase = require("../utils/demoDatabase");
 const { analyzeVoiceComplete } = require("../utils/voiceAnalysis");
 
-// Helper to check if using demo mode
 const isMongoDBConnected = async () => {
   try {
     const mongoose = require("mongoose");

@@ -4,13 +4,9 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
 import {
-    HiOutlineUserCircle,
     HiOutlineBriefcase,
-    HiOutlineBuildingOffice2,
-    HiOutlineAcademicCap,
     HiOutlineSparkles,
     HiOutlineCheck,
-    HiOutlineClock,
     HiOutlineCheckCircle,
     HiOutlineCpuChip,
     HiOutlineChatBubbleBottomCenterText,
@@ -20,10 +16,13 @@ interface CandidateMemoryData {
     targetRole?: string;
     targetCompanies?: string[];
     targetDays?: number;
+    weakDSATopics?: Array<string | { topic: string }>;
+    speechMetrics?: { avgWpm?: number; baselineWpm?: number; fillerWordFrequency?: number };
+    lastInterviewerFeedback?: string;
     candidateMemory?: {
-        weakDSATopics?: string[];
+        weakDSATopics?: Array<string | { topic: string }>;
         projectHighlights?: { title: string; tech: string; description: string }[];
-        speechMetrics?: { avgWpm: number; fillerWordFrequency: number };
+        speechMetrics?: { avgWpm?: number; baselineWpm?: number; fillerWordFrequency?: number };
         recurringMistakes?: string[];
         lastInterviewerFeedback?: string;
         lastUpdated?: string;
@@ -57,12 +56,16 @@ export default function ProfilePage() {
         const fetchMemory = async () => {
             try {
                 setLoading(true);
-                const res = await api.getCandidateMemory() as CandidateMemoryData;
-                setProfile(res);
-                if (res.targetRole) setTargetRole(res.targetRole);
-                if (res.targetCompanies?.length) setTargetCompanies(res.targetCompanies.join(', '));
-                if (res.targetDays) setTargetDays(res.targetDays);
-                if (res.candidateMemory?.weakDSATopics) setWeakTopics(res.candidateMemory.weakDSATopics);
+                const raw = (await api.getCandidateMemory()) as { candidateMemory?: CandidateMemoryData } & CandidateMemoryData;
+                const mem: CandidateMemoryData = raw?.candidateMemory || raw || {};
+                setProfile(mem);
+                if (mem.targetRole) setTargetRole(mem.targetRole);
+                if (mem.targetCompanies?.length) setTargetCompanies(mem.targetCompanies.join(', '));
+                if (mem.targetDays) setTargetDays(mem.targetDays);
+                const topics = mem.weakDSATopics || mem.candidateMemory?.weakDSATopics;
+                if (topics && Array.isArray(topics)) {
+                    setWeakTopics(topics.map((w) => typeof w === 'string' ? w : (w && typeof w === 'object' && 'topic' in w ? w.topic : '')));
+                }
             } catch (err) {
                 console.error('Failed to load profile memory:', err);
             } finally {
@@ -263,14 +266,14 @@ export default function ProfilePage() {
                             <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05] space-y-1">
                                 <span className="text-[11px] text-slate-400 font-semibold">Speech Pacing Average</span>
                                 <p className="text-sm font-bold font-mono-metric text-white">
-                                    {profile?.candidateMemory?.speechMetrics?.avgWpm || 135} <span className="text-xs font-normal text-slate-400">Words Per Minute (Optimal 120-150)</span>
+                                    {profile?.candidateMemory?.speechMetrics?.avgWpm || profile?.speechMetrics?.baselineWpm || profile?.speechMetrics?.avgWpm || 135} <span className="text-xs font-normal text-slate-400">Words Per Minute (Optimal 120-150)</span>
                                 </p>
                             </div>
 
                             <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05] space-y-1">
                                 <span className="text-[11px] text-slate-400 font-semibold">Last Evaluator Feedback Memo</span>
                                 <p className="text-xs text-slate-300 italic leading-relaxed">
-                                    "{profile?.candidateMemory?.lastInterviewerFeedback || 'Strong architectural explanation. Continue emphasizing concrete metric impacts (e.g. latency, throughput) in STAR behavioral answers.'}"
+                                    &ldquo;{profile?.candidateMemory?.lastInterviewerFeedback || profile?.lastInterviewerFeedback || 'Strong architectural explanation. Continue emphasizing concrete metric impacts (e.g. latency, throughput) in STAR behavioral answers.'}&rdquo;
                                 </p>
                             </div>
                         </div>

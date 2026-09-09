@@ -49,6 +49,15 @@ const QUESTIONS = [
   { id:'dp-6', topic:'Dynamic Programming', difficulty:'Hard',   company:'Uber',      question:'Longest Increasing Subsequence (LIS) with O(n log n) uses:', options:['2D DP table','Greedy with binary search on a tails array','BFS on a DAG','Segment tree + DP'], answer:1, explanation:'Maintain a "tails" array where tails[i] is the smallest tail of all increasing subsequences of length i+1. Binary search to update in O(log n) per element.' },
   { id:'dp-7', topic:'Dynamic Programming', difficulty:'Hard',   company:'Netflix',   question:'Matrix Chain Multiplication DP finds:', options:['The actual product matrix','Minimum scalar multiplications needed','Maximum result values','Optimal matrix dimensions'], answer:1, explanation:'dp[i][j] = minimum cost to multiply matrices i…j. Split at every k between i and j; take min. O(n³) time, O(n²) space.' },
   { id:'dp-8', topic:'Dynamic Programming', difficulty:'Medium', company:'Google',    question:'Partition Equal Subset Sum reduces to:', options:['LCS on two halves','0/1 Knapsack with target = totalSum / 2','Coin Change with coins = array elements','Fibonacci-style recurrence'], answer:1, explanation:'If totalSum is odd → impossible. Otherwise find a subset summing to totalSum/2. This is 0/1 knapsack with capacity = totalSum/2 and items = array elements.' },
+  { id:'dp-9', topic:'Dynamic Programming', difficulty:'Easy',   company:'Amazon',    question:'In Climbing Stairs (1 or 2 steps at a time), the number of ways to reach step n equals:', options:['n!','2^n','Fibonacci(n + 1)','n * (n - 1) / 2'], answer:2, explanation:'To reach step n, you can either jump from step n-1 or n-2. Thus ways(n) = ways(n-1) + ways(n-2), matching the Fibonacci recurrence.' },
+  { id:'dp-10', topic:'Dynamic Programming', difficulty:'Medium', company:'Microsoft', question:'House Robber I (adjacent houses cannot be robbed) has the recurrence:', options:['dp[i] = dp[i-1] + nums[i]','dp[i] = max(dp[i-1], dp[i-2] + nums[i])','dp[i] = max(dp[i-1], dp[i-2])','dp[i] = dp[i-2] + nums[i]'], answer:1, explanation:'At house i, you either skip it (keep dp[i-1]) or rob it (add nums[i] to dp[i-2]). The optimal value is the maximum of the two.' },
+  { id:'dp-11', topic:'Dynamic Programming', difficulty:'Medium', company:'Meta',      question:'Unique Paths in an m x n grid (only moving Right or Down) is solved in O(n) space by:', options:['Recursive DFS with no cache','Rolling 1D array of size n with dp[j] += dp[j-1]','Matrix multiplication','Greedy priority queue'], answer:1, explanation:'Since dp[i][j] only depends on dp[i-1][j] (current cell before update) and dp[i][j-1] (previous column), a 1D array of size n is sufficient.' },
+  { id:'dp-12', topic:'Dynamic Programming', difficulty:'Hard',   company:'Google',    question:'"Burst Balloons" is classified as which type of DP technique?', options:['1D State Compression','Interval / Range DP','Digit DP','Bitmask DP'], answer:1, explanation:'Burst Balloons is solved by defining dp[i][j] as the max coins gained from bursting all balloons strictly between index i and j (Interval DP), iterating by subarray length.' },
+  { id:'dp-13', topic:'Dynamic Programming', difficulty:'Hard',   company:'Apple',     question:'Traveling Salesperson Problem (TSP) with n ≤ 20 vertices is solved optimally using:', options:['O(n!) Brute Force','Bitmask DP in O(n² · 2ⁿ) time','Greedy Nearest Neighbor','Kruskal Algorithm'], answer:1, explanation:'Held-Karp algorithm uses Bitmask DP where dp[mask][u] represents the minimum cost visiting subset of vertices in mask ending at u. Time: O(n² · 2ⁿ), Space: O(n · 2ⁿ).' },
+  { id:'dp-14', topic:'Dynamic Programming', difficulty:'Medium', company:'Amazon',    question:'Target Sum (assign + or - to each number to reach target S) transforms mathematically into:', options:['Longest Common Subsequence','Subset Sum where positive subset P = (totalSum + target) / 2','Shortest Path BFS','Graph 2-Coloring'], answer:1, explanation:'Sum(P) - Sum(N) = S and Sum(P) + Sum(N) = Total. Adding gives 2 * Sum(P) = Total + S, which reduces to classic 0/1 Subset Sum.' },
+  { id:'dp-15', topic:'Dynamic Programming', difficulty:'Hard',   company:'Uber',      question:'Longest Palindromic Subsequence of string s can be solved directly by computing:', options:['KMP prefix table on s','LCS between s and reverse(s)','Monotonic Stack on characters','Suffix Automaton'], answer:1, explanation:'The Longest Palindromic Subsequence of string s is identically the Longest Common Subsequence (LCS) between s and its reverse reverse(s).' },
+  { id:'dp-16', topic:'Dynamic Programming', difficulty:'Hard',   company:'Netflix',   question:'Maximum Product Subarray handles negative numbers optimally by tracking:', options:['Only running sum','Both running minimum and running maximum at each index','Bitwise XOR values','Positive prefix products only'], answer:1, explanation:'Multiplying by a negative number can turn a minimum into a maximum. Maintaining both running min and max at each step ensures correct transitions in O(n) time O(1) space.' },
+
 
   // ── Graphs ────────────────────────────────────────────────────────────────
   { id:'gph-1', topic:'Graphs', difficulty:'Easy',   company:'Amazon',    question:'BFS guarantees shortest path (fewest edges) only in:', options:['Weighted directed graphs','Unweighted graphs','Graphs with negative weights','DAGs only'], answer:1, explanation:'BFS explores level-by-level; first visit to a node is via fewest edges. For weighted graphs use Dijkstra (non-negative) or Bellman-Ford (negative).' },
@@ -132,18 +141,62 @@ const shuffle = (arr) => {
   return a;
 };
 
+const { generateDSAQuestionsAI } = require('../utils/aiService');
+
 // POST /api/dsa/generate
-const generate = (req, res) => {
+const generate = async (req, res) => {
   try {
     const { topic = 'Mixed', difficulty, count = 10, language } = req.body;
 
-    let pool = topic === 'Mixed' ? [...QUESTIONS] : QUESTIONS.filter(q => q.topic === topic);
-    if (difficulty && difficulty !== 'Mixed') {
-      pool = pool.filter(q => q.difficulty === difficulty);
+    // 1. Try Dynamic AI Question Generation (Local LLM or Cloud Gemini)
+    let aiQuestions = null;
+    try {
+      aiQuestions = await generateDSAQuestionsAI({
+        topic,
+        difficulty: difficulty || 'Medium',
+        count: Math.min(Number(count) || 10, 15),
+        language: language || 'General'
+      });
+    } catch (aiErr) {
+      console.warn("Dynamic AI DSA question generation skipped to curated pool:", aiErr.message);
     }
 
-    if (pool.length === 0) {
-      return res.status(400).json({ error: 'No questions found for the selected filters. Try "Mixed" difficulty.' });
+    if (aiQuestions && Array.isArray(aiQuestions) && aiQuestions.length > 0) {
+      // Shuffle answer options for AI-generated questions
+      const questions = aiQuestions.map(q => {
+        const correctText = q.options[q.answer] || q.options[0];
+        const shuffledOptions = shuffle([...q.options]);
+        return {
+          id: q.id,
+          topic: q.topic,
+          difficulty: q.difficulty,
+          company: q.company,
+          question: q.question,
+          options: shuffledOptions,
+          answer: shuffledOptions.indexOf(correctText),
+          explanation: q.explanation,
+        };
+      });
+
+      return res.json({
+        success: true,
+        source: 'ai',
+        questions,
+        meta: { topic, difficulty: difficulty || 'Mixed', language: language || 'General', total: questions.length },
+      });
+    }
+
+    // 2. Curated offline question pool fallback
+    const normalizedTopic = (topic || 'Mixed').trim().toLowerCase();
+    let pool = normalizedTopic === 'mixed'
+      ? [...QUESTIONS]
+      : QUESTIONS.filter(q => q.topic.toLowerCase() === normalizedTopic || q.topic.toLowerCase().includes(normalizedTopic) || normalizedTopic.includes(q.topic.toLowerCase()));
+    
+    if (pool.length === 0) pool = [...QUESTIONS];
+
+    if (difficulty && difficulty.toLowerCase() !== 'mixed') {
+      const filtered = pool.filter(q => q.difficulty.toLowerCase() === difficulty.toLowerCase());
+      if (filtered.length > 0) pool = filtered;
     }
 
     const selected = shuffle(pool).slice(0, Math.min(count, pool.length));
@@ -166,6 +219,7 @@ const generate = (req, res) => {
 
     return res.json({
       success: true,
+      source: 'curated_bank',
       questions,
       meta: { topic, difficulty: difficulty || 'Mixed', language: language || 'General', total: questions.length, availableInPool: pool.length },
     });
@@ -173,6 +227,7 @@ const generate = (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // POST /api/dsa/analyze
 const analyze = (req, res) => {

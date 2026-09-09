@@ -684,7 +684,7 @@ export default function InterviewSimulatorPage() {
                                 {result.evaluation.idealAnswerSnippet && (
                                     <div className="p-3 rounded-xl bg-black/40 border border-indigo-500/20 text-xs">
                                         <p className="font-bold text-indigo-300 mb-1">✨ Exemplary Formulation Sample:</p>
-                                        <p className="text-slate-300 italic">"{result.evaluation.idealAnswerSnippet}"</p>
+                                        <p className="text-slate-300 italic">&ldquo;{result.evaluation.idealAnswerSnippet}&rdquo;</p>
                                     </div>
                                 )}
                             </div>
